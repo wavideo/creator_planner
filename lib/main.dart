@@ -2,7 +2,6 @@ import 'package:creator_planner/theme/colors.dart';
 import 'package:creator_planner/theme/theme.dart';
 import 'package:creator_planner/ui/pages/home/home_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 void main() {
   runApp(const MyApp());
