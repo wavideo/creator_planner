@@ -1,9 +1,9 @@
 import 'package:creator_planner/theme/colors.dart';
-import 'package:creator_planner/ui/widgets/custom_box2.dart';
+import 'package:creator_planner/ui/widgets/section_with_title.dart';
 import 'package:flutter/material.dart';
 
-class TitleThumbnailBox extends StatelessWidget {
-  const TitleThumbnailBox({
+class TitleThumbnailSection extends StatelessWidget {
+  const TitleThumbnailSection({
     super.key,
     required this.context,
   });
@@ -12,7 +12,7 @@ class TitleThumbnailBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomBox2(
+    return SectionWithTitle(
       icon: Icons.ads_click,
       title: '제목 · 썸네일',
       child: Row(

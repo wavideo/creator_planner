@@ -1,32 +1,17 @@
 import 'package:creator_planner/theme/colors.dart';
-import 'package:creator_planner/ui/widgets/custom_box2.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-class ReferenceVideoBox extends StatelessWidget {
-  const ReferenceVideoBox({
+class ViewsChart extends StatelessWidget {
+  const ViewsChart(
+    this.context, {
     super.key,
   });
 
+  final BuildContext context;
+
   @override
   Widget build(BuildContext context) {
-    return CustomBox2(
-      icon: Icons.search,
-      title: '주제 시장조사',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          groupVideoRow(context),
-          SizedBox(height: 20),
-          viewsChart(context),
-          SizedBox(height: 10),
-          groupViewsRow(context),
-        ],
-      ),
-    );
-  }
-
-  Widget viewsChart(BuildContext context) {
     return Row(
       children: [
         Flexible(flex: 0, child: SizedBox()),
@@ -151,97 +136,6 @@ class ReferenceVideoBox extends StatelessWidget {
             ),
           ),
         ),
-      ],
-    );
-  }
-
-  Widget groupVideoRow(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Flexible(
-          flex: 3,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(6),
-              color: AppColor.lightGray20.of(context),
-            ),
-            child: AspectRatio(aspectRatio: 16 / 9, child: Container()),
-          ),
-        ),
-        SizedBox(width: 12),
-        Flexible(
-          flex: 5,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Text('엔비디아  폭삭 망sadfgasdgdsagssdgsdags한 이뉴는?!',
-                  style: TextStyle(fontSize: 15),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis),
-              SizedBox(height: 4),
-              Text('15일 전',
-                  style: TextStyle(
-                      fontSize: 13, color: AppColor.gray20.of(context))),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Row groupViewsRow(BuildContext context) {
-    var primaryColor = AppColor.primaryRed.of(context);
-    var color = AppColor.gray30.of(context);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Flexible(
-            flex: 6,
-            child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.local_fire_department, color: primaryColor),
-                  SizedBox(width: 4),
-                  Text('720%',
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: primaryColor))
-                ])),
-        SizedBox(
-            height: 20,
-            child: VerticalDivider(width: 1, thickness: 1, color: color)),
-        Flexible(
-            flex: 5,
-            child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.bar_chart, size: 16, color: color),
-                  SizedBox(width: 4),
-                  Text('3.6만뷰',
-                      style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: color)),
-                ])),
-        SizedBox(
-            height: 20,
-            child: VerticalDivider(width: 1, thickness: 1, color: color)),
-        Flexible(
-            flex: 5,
-            child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.group, size: 16, color: color),
-                  SizedBox(width: 4),
-                  Text('3.6만명', style: TextStyle(fontSize: 12, color: color))
-                ])),
       ],
     );
   }

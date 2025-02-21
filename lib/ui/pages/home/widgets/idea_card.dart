@@ -1,6 +1,6 @@
 import 'package:creator_planner/theme/colors.dart';
-import 'package:creator_planner/ui/pages/home/widgets/reference_video.dart';
-import 'package:creator_planner/ui/pages/home/widgets/title_thumbnail_box.dart';
+import 'package:creator_planner/ui/pages/home/widgets/reference_video_section.dart';
+import 'package:creator_planner/ui/pages/home/widgets/title_thumbnail_section.dart';
 import 'package:creator_planner/ui/widgets/border_card.dart';
 import 'package:flutter/material.dart';
 
@@ -22,8 +22,8 @@ class IdeaCard extends StatelessWidget {
           children: [
             groupIdeaColumn(context),
             groupTagAndGoalRow(context),
-            TitleThumbnailBox(context: context),
-            ReferenceVideoBox(),
+            TitleThumbnailSection(context: context),
+            ReferenceVideoSection(views: 2200000, subscribers: 1000000),
           ],
         ),
       ),

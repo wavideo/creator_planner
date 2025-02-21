@@ -1,11 +1,11 @@
 import 'package:creator_planner/theme/colors.dart';
 import 'package:flutter/material.dart';
 
-class CustomBox2 extends StatelessWidget {
+class SectionWithTitle extends StatelessWidget {
   final IconData icon;
   final String title;
   final Widget child;
-  const CustomBox2(
+  const SectionWithTitle(
       {required this.icon,
       required this.title,
       required this.child,

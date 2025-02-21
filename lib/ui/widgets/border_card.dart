@@ -17,7 +17,7 @@ class BorderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       shape: RoundedRectangleBorder(
-          side: BorderSide(color: AppColor.containerGray10.of(context)),
+          side: BorderSide(color: AppColor.containerGray20.of(context).withValues(alpha: 0.6)),
           borderRadius: BorderRadius.circular(borderRadius ?? 14)),
       elevation: 6,
       shadowColor: Colors.black.withValues(alpha: 0.4),
