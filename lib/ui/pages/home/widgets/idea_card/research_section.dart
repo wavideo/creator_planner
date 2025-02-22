@@ -1,36 +1,61 @@
-import 'package:creator_planner/theme/colors.dart';
-import 'package:creator_planner/ui/pages/home/widgets/views_ratio_indicator.dart';
+import 'package:creator_planner/core/config/theme/colors.dart';
+import 'package:creator_planner/ui/pages/home/widgets/idea_card/research_views_ratio_indicator.dart';
 import 'package:creator_planner/ui/widgets/section_with_title.dart';
-import 'package:creator_planner/utils/number_util.dart';
+import 'package:creator_planner/core/utils/%08format_util.dart';
 import 'package:flutter/material.dart';
 
-class ReferenceVideoSection extends StatelessWidget {
+class ResearchSection extends StatelessWidget {
+  final String title;
+  final String channelName;
+  final DateTime publishedAt;
   final int views;
   final int subscribers;
 
-  const ReferenceVideoSection({
+  ResearchSection({
+    required this.title,
+    required this.channelName,
+    DateTime? publishedAt,
     required this.views,
     required this.subscribers,
     super.key,
-  });
+  }) : publishedAt = publishedAt ?? DateTime.now().subtract(Duration(days: 3));
 
   @override
   Widget build(BuildContext context) {
     double ratio = views / subscribers;
 
     return SectionWithTitle(
-      icon: Icons.search,
       title: '리서치',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          groupVideoRow(context),
-          SizedBox(height: 20),
-          groupViewsRow(context, views: views, subscribers: subscribers),
-          SectionWithTitle(icon: Icons.search, title: '리서치 : 구독자 대비 성과', child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ViewsRatioIndicator(ratio: ratio),
-          )),
+          Container(
+              padding: EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+              decoration: BoxDecoration(
+                color: AppColor.lightGray10.of(context).withValues(alpha: 0.3),
+                border: Border.all(
+                  color: AppColor.lightGray10.of(context),
+                  width: 1,
+                ),
+                borderRadius: BorderRadius.all(Radius.circular(8)),
+              ),
+              child: Column(
+                children: [
+                  groupVideoRow(context),
+                  SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Divider(color: AppColor.lightGray10.of(context)),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    child: ResearchViewsRatioIndicator(ratio: ratio),
+                  ),
+                  SizedBox(height: 20),
+                  groupViewsRow(context,
+                      views: views, subscribers: subscribers),
+                ],
+              )),
         ],
       ),
     );
@@ -58,12 +83,12 @@ class ReferenceVideoSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text('엔비디아  폭삭 망sadfgasdgdsagssdgsdags한 이뉴는?!',
+              Text(title,
                   style: TextStyle(fontSize: 15),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis),
               SizedBox(height: 10),
-              Text('15일 전',
+              Text('${formatDateTimeDifference(publishedAt)}',
                   style: TextStyle(
                       fontSize: 13, color: AppColor.gray20.of(context))),
             ],
@@ -95,7 +120,7 @@ class ReferenceVideoSection extends StatelessWidget {
                             style: TextStyle(fontSize: 13, color: color),
                             children: [
                               TextSpan(
-                                  text: '${formatNumber(views)}',
+                                  text: '${formatCompactNumber(views)}',
                                   style: TextStyle(
                                       fontSize: 15,
                                       fontWeight: FontWeight.w600))
@@ -122,7 +147,7 @@ class ReferenceVideoSection extends StatelessWidget {
                             style: TextStyle(fontSize: 13, color: color),
                             children: [
                               TextSpan(
-                                  text: '${formatNumber(subscribers)}',
+                                  text: '${formatCompactNumber(subscribers)}',
                                   style: TextStyle(
                                       fontSize: 15,
                                       fontWeight: FontWeight.w600))

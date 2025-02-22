@@ -1,4 +1,4 @@
-import 'package:creator_planner/theme/colors.dart';
+import 'package:creator_planner/core/config/theme/colors.dart';
 import 'package:flutter/material.dart';
 
 class CustomBox extends StatelessWidget {

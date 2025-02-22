@@ -1,15 +1,12 @@
-import 'package:creator_planner/theme/colors.dart';
+import 'package:creator_planner/core/config/theme/colors.dart';
 import 'package:flutter/material.dart';
 
 class SectionWithTitle extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
   final String title;
   final Widget child;
   const SectionWithTitle(
-      {required this.icon,
-      required this.title,
-      required this.child,
-      super.key});
+      {this.icon, required this.title, required this.child, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -23,9 +20,15 @@ class SectionWithTitle extends StatelessWidget {
         SizedBox(height: 12),
         Row(
           children: [
-            // Icon(icon,
-            //     size: 20, color: AppColor.gray20.of(context)),
-            // SizedBox(width: 6),
+            Offstage(
+              offstage: icon == null,
+              child: Row(
+                children: [
+                  Icon(icon, size: 20, color: AppColor.gray20.of(context)),
+                  SizedBox(width: 6),
+                ],
+              ),
+            ),
             Text(title,
                 style: TextStyle(
                     fontSize: 15,

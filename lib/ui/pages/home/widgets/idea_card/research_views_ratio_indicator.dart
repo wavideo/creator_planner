@@ -1,11 +1,11 @@
 import 'dart:math';
 
-import 'package:creator_planner/theme/colors.dart';
+import 'package:creator_planner/core/config/theme/colors.dart';
 import 'package:flutter/material.dart';
 
-class ViewsRatioIndicator extends StatelessWidget {
+class ResearchViewsRatioIndicator extends StatelessWidget {
   final double ratio;
-  const ViewsRatioIndicator({
+  const ResearchViewsRatioIndicator({
     required this.ratio,
     super.key,
   });
@@ -58,7 +58,7 @@ class ViewsRatioIndicator extends StatelessWidget {
               text: TextSpan(
                   text: '${ratio<0.05 ? (ratio * 1000).round()/10 : (ratio * 20).round() * 5}%',
                   style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 17,
                       color: primaryColor,
                       fontWeight: FontWeight.w600)),
             ),

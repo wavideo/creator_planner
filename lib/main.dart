@@ -1,10 +1,12 @@
-import 'package:creator_planner/theme/colors.dart';
-import 'package:creator_planner/theme/theme.dart';
+import 'package:creator_planner/core/config/theme/colors.dart';
+import 'package:creator_planner/core/config/theme/theme.dart';
 import 'package:creator_planner/ui/pages/home/home_page.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  await initializeDateFormatting('ko');
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {

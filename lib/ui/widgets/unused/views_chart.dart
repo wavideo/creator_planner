@@ -1,4 +1,4 @@
-import 'package:creator_planner/theme/colors.dart';
+import 'package:creator_planner/core/config/theme/colors.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
@@ -24,7 +24,6 @@ class ViewsChart extends StatelessWidget {
                 lineTouchData: LineTouchData(
                     enabled: true,
                     touchTooltipData: LineTouchTooltipData(
-                      tooltipBgColor: Colors.blue,
                       getTooltipItems: (touchedSpots) {
                         return touchedSpots.map((touchedSpot) {
                           return LineTooltipItem(
