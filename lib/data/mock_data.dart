@@ -5,7 +5,7 @@ final List<Idea> mockIdeas = [
   Idea(
       title: "Flutter 앱 개발",
       content: '테스트',
-      tagIds: ["001", "002", "003", "004"],
+      tagIds: ["001", "002", "003", "004", "006", "005"],
       targetViews: 320300),
   Idea(title: "AI 기반 콘텐츠 추천", content: '테스트'),
   Idea(title: "AI 기반 콘텐츠 추천", content: '테스트', targetViews: 560200),

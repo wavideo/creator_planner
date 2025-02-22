@@ -2,6 +2,7 @@ import 'package:creator_planner/ui/pages/home/widgets/idea_card/idea_detail_sect
 import 'package:creator_planner/ui/pages/home/widgets/idea_card/research_section.dart';
 import 'package:creator_planner/ui/pages/home/widgets/idea_card/prototype_section.dart';
 import 'package:creator_planner/ui/pages/home/widgets/idea_card/task_schedule_section.dart';
+import 'package:creator_planner/ui/pages/idea_edit/idea_edit_page.dart';
 import 'package:creator_planner/ui/widgets/border_card.dart';
 import 'package:flutter/material.dart';
 
@@ -14,29 +15,34 @@ class IdeaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isPrototype = false;
-    final bool isResearch = false;
-    final bool isTask = false;
+    final bool isPrototype = true;
+    final bool isResearch = true;
+    final bool isTask = true;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: BorderCard(
-        paddingHorizontal: 20,
-        paddingVertical: 20,
-        child: Column(
-          children: [
-            IdeaDetailSection(id: id),
-            if (isPrototype)
-              PrototypeSection(
-                  title: '내가 정한 이름', channelName: '내 채널', targetViews: 13004),
-            if (isResearch)
-              ResearchSection(
-                  title: '반드시 봐야하는 인터넷 꿀팁 3가지',
-                  channelName: '아정당',
-                  views: 22232200,
-                  subscribers: 1000000),
-            if (isTask) TaskScheduleSection(),
-          ],
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => IdeaEditPage(id:id)));
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: BorderCard(
+          paddingHorizontal: 20,
+          paddingVertical: 20,
+          child: Column(
+            children: [
+              IdeaDetailSection(id: id),
+              if (isPrototype)
+                PrototypeSection(
+                    title: '내가 정한 이름', channelName: '내 채널', targetViews: 13004),
+              if (isResearch)
+                ResearchSection(
+                    title: '반드시 봐야하는 인터넷 꿀팁 3가지',
+                    channelName: '아정당',
+                    views: 22232200,
+                    subscribers: 1000000),
+              if (isTask) TaskScheduleSection(),
+            ],
+          ),
         ),
       ),
     );

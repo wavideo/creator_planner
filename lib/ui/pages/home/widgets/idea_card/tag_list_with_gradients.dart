@@ -34,15 +34,16 @@ class _TagListWithGradientsState extends State<TagListWithGradients> {
   Widget build(BuildContext context) {
     return Expanded(
       child: Stack(children: [
-        ListView.builder(
-            controller: _scrollController,
-            shrinkWrap: true,
-            scrollDirection: Axis.horizontal,
-            itemCount: widget.tagIds.length,
-            itemBuilder: (context, index) {
-              String id = widget.tagIds[index];
-              return IdeaTagItem(id: id);
-            }),
+        if (widget.tagIds.isNotEmpty)
+          ListView.builder(
+              controller: _scrollController,
+              shrinkWrap: true,
+              scrollDirection: Axis.horizontal,
+              itemCount: widget.tagIds.length,
+              itemBuilder: (context, index) {
+                String id = widget.tagIds[index];
+                return IdeaTagItem(id: id);
+              }),
         if (showLeftGradient)
           Positioned(
             left: 0,

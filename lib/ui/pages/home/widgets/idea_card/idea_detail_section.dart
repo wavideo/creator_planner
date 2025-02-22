@@ -60,8 +60,7 @@ class _IdeaDetailSectionState extends State<IdeaDetailSection> {
                 TagListWithGradients(tagIds: idea.tagIds),
                 SizedBox(width: 30),
                 if (idea.targetViews != null)
-                  groupTargetViews(context,
-                      goal: '${formatCompactNumber(idea.targetViews!)}뷰'),
+                  groupTargetViews(context, targetViews: idea.targetViews!),
                 SizedBox(width: 10),
               ],
             ),
@@ -70,12 +69,12 @@ class _IdeaDetailSectionState extends State<IdeaDetailSection> {
     );
   }
 
-  Row groupTargetViews(BuildContext context, {required String goal}) {
+  Row groupTargetViews(BuildContext context, {required int targetViews}) {
     return Row(
       children: [
         Icon(Icons.flag, size: 20, color: AppColor.primaryBlue.of(context)),
         SizedBox(width: 4),
-        Text(goal,
+        Text('${formatCompactNumber(targetViews)}뷰',
             style: TextStyle(
                 color: AppColor.primaryBlue.of(context),
                 fontSize: 14,
