@@ -1,4 +1,5 @@
 import 'package:creator_planner/core/config/theme/colors.dart';
+import 'package:creator_planner/data/mock_data.dart';
 import 'package:creator_planner/ui/pages/home/widgets/idea_card.dart';
 import 'package:flutter/material.dart';
 
@@ -26,15 +27,14 @@ class HomePage extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    IdeaCard(ideaId: '1'),
-                    IdeaCard(ideaId: '2'),
-                    IdeaCard(ideaId: '3', isTask: true),
-                    IdeaCard(ideaId: '1', isPrototype: true, isResearch: true),
-                    IdeaCard(ideaId: '2', isResearch: true),
-                    IdeaCard(ideaId: '3', isPrototype: true, isTask: true),
-                    IdeaCard(ideaId: '1', isPrototype: true),
-                    IdeaCard(ideaId: '2', isResearch: true),
-                    IdeaCard(ideaId: '3', isPrototype: true, isResearch: true, isTask: true),
+                    ListView.builder(
+                        itemCount: mockIdeas.length,
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          final idea = mockIdeas[index];
+                          return IdeaCard(id: idea.id);
+                        })
                   ],
                 ),
               ),
