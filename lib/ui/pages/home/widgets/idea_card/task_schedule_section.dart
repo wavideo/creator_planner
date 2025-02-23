@@ -1,4 +1,4 @@
-import 'package:creator_planner/core/utils/%08format_util.dart';
+import 'package:creator_planner/core/utils/format_util.dart';
 import 'package:creator_planner/ui/widgets/section_with_title.dart';
 import 'package:flutter/material.dart';
 

@@ -1,47 +1,47 @@
 import 'package:creator_planner/core/config/theme/colors.dart';
-import 'package:creator_planner/core/utils/%08format_util.dart';
-import 'package:creator_planner/data/mock_data.dart';
+import 'package:creator_planner/core/utils/format_util.dart';
+import 'package:creator_planner/data/app_view_model.dart';
 import 'package:creator_planner/data/models/idea.dart';
-import 'package:creator_planner/data/services/idea_firestore_service.dart';
 import 'package:creator_planner/ui/pages/home/widgets/idea_card/prototype_section.dart';
 import 'package:creator_planner/ui/pages/home/widgets/idea_card/research_section.dart';
 import 'package:creator_planner/ui/pages/home/widgets/idea_card/tag_list_with_gradients.dart';
 import 'package:creator_planner/ui/pages/home/widgets/idea_card/task_schedule_section.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class IdeaEditPage extends StatefulWidget {
+class IdeaEditPage extends ConsumerStatefulWidget {
   final String? id;
   const IdeaEditPage({this.id, super.key});
 
   @override
-  State<IdeaEditPage> createState() => _IdeaEditPageState();
+  ConsumerState<IdeaEditPage> createState() => _IdeaEditPageState();
 }
 
-class _IdeaEditPageState extends State<IdeaEditPage> {
+class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
   final FocusNode _titleFocusNode = FocusNode();
   final FocusNode _contentFocusNode = FocusNode();
-  Idea? idea;
+  Idea idea = Idea(title: '');
 
   @override
   void initState() {
     super.initState();
-
-    if (widget.id == null && !_titleFocusNode.hasFocus) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _titleFocusNode.requestFocus();
-      });
-    }
-
     if (widget.id != null) {
+      Idea idea = ref.read(appViewModelProvider).ideas.firstWhere(
+            (idea) => idea.id == widget.id,
+            orElse: () => Idea(title: ''),
+          );
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        idea = mockIdeas.where((idea) => idea.id == widget.id).firstOrNull;
-        if (idea != null) {
-          _titleController.text = idea!.title;
-          _contentController.text = idea!.content ?? '';
-        }
+        _titleController.text = idea.title;
+        _contentController.text = idea.content ?? '';
       });
+    } else {
+      if (!_titleFocusNode.hasFocus) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _titleFocusNode.requestFocus();
+        });
+      }
     }
   }
 
@@ -52,11 +52,13 @@ class _IdeaEditPageState extends State<IdeaEditPage> {
     super.dispose();
   }
 
-  Future<void> _addIdea() async {
-    await IdeaFirestoreService().addIdea(Idea(
+  Future<void> _addIdea(WidgetRef ref) async {
+    var newIdea = Idea(
       title: _titleController.text,
-      content: _contentController.text.isEmpty ? null : _contentController.text,
-    ));
+      content:
+          _contentController.text.isNotEmpty ? _contentController.text : null,
+    );
+    ref.read(appViewModelProvider.notifier).createIdea(newIdea);
   }
 
   @override
@@ -65,13 +67,15 @@ class _IdeaEditPageState extends State<IdeaEditPage> {
         backgroundColor: AppColor.containerWhite.of(context),
         appBar: AppBar(
           title: Text('아이디어 수정'),
-          leading: IconButton(
-            onPressed: () {
-              _addIdea();
-              Navigator.pop(context);
-            },
-            icon: Icon(Icons.arrow_back_ios_new),
-          ),
+          leading: Consumer(builder: (context, ref, child) {
+            return IconButton(
+              onPressed: () {
+                _addIdea(ref);
+                Navigator.pop(context);
+              },
+              icon: Icon(Icons.arrow_back_ios_new),
+            );
+          }),
         ),
         body: LayoutBuilder(builder: (context, constraints) {
           double maxContentWidth = 600.0; // 최대 가로폭 제한
@@ -148,16 +152,22 @@ class _IdeaEditPageState extends State<IdeaEditPage> {
                               },
                             ),
                             SizedBox(height: 600),
-                            if (idea != null)
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                                height: 50,
-                                child: Row(
-                                  children: [
-                                    TagListWithGradients(tagIds: idea!.tagIds),
-                                  ],
-                                ),
+                            Container(
+                              padding: EdgeInsets.symmetric(vertical: 10),
+                              height: 50,
+                              child: Row(
+                                children: [
+                                  Consumer(builder: (context, ref, child) {
+                                    ref
+                                        .watch(appViewModelProvider)
+                                        .ideas
+                                        .where((item) => item.id == idea.id);
+                                    return TagListWithGradients(
+                                        ideaId: idea.id);
+                                  }),
+                                ],
                               ),
+                            ),
                             PrototypeSection(
                                 title: '내가 정한 이름',
                                 channelName: '내 채널',

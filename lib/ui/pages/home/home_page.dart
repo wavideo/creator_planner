@@ -1,9 +1,9 @@
 import 'package:creator_planner/core/config/theme/colors.dart';
-import 'package:creator_planner/data/mock_data.dart';
-import 'package:creator_planner/data/services/idea_firestore_service.dart';
+import 'package:creator_planner/data/app_view_model.dart';
 import 'package:creator_planner/ui/pages/home/widgets/idea_card.dart';
 import 'package:creator_planner/ui/pages/idea_edit/idea_edit_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -37,14 +37,17 @@ class HomePage extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    ListView.builder(
-                        itemCount: mockIdeas.length,
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          final idea = mockIdeas[index];
-                          return IdeaCard(id: idea.id);
-                        })
+                    Consumer(builder: (context, ref, child) {
+                      var state = ref.watch(appViewModelProvider);
+                      return ListView.builder(
+                          itemCount: state.ideas.length,
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            final idea = state.ideas[index];
+                            return IdeaCard(id: idea.id);
+                          });
+                    })
                   ],
                 ),
               ),

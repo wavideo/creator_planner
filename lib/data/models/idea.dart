@@ -1,82 +1,139 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:convert';
+
+import 'package:collection/collection.dart';
 import 'package:uuid/uuid.dart';
 
-// id
-// createdAt
-// updatedAt
-// title
-// content
-// tagIds
-// targetViews
-// prototypeIds
-// researchIds
-// taskScheduleIds
-
-/*
-? idea.dart
-- 모델 Idea{}
-- 생성자 & 초기화 Idea():
-- JSON 필드 IdeaField {}
-? firestore_service.dart
-
-*/
-
 class Idea {
-  // key
   final String id;
   final DateTime? createdAt;
   final DateTime? updatedAt;
-  // input
   final String title;
   final String? content;
   final List<String> tagIds;
   final int? targetViews;
-  // input (확장)
   final List<String> prototypeIds;
   final List<String> researchIds;
   final List<String> taskScheduleIds;
-
-//* 생성자
-  Idea(
-      { // key
-      String? id,
-      DateTime? createdAt,
-      DateTime? updatedAt,
-      // input
-      required this.title,
-      this.content,
-      List<String>? tagIds,
-      this.targetViews,
-      // input (확장)
-      List<String>? prototypeIds,
-      List<String>? researchIds,
-      List<String>? taskScheduleIds})
-//* 초기화
-      :
-        // key
-        id = id ?? Uuid().v4(),
+  Idea({
+    String? id,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    List<String>? tagIds,
+    List<String>? prototypeIds,
+    List<String>? researchIds,
+    List<String>? taskScheduleIds,
+    required this.title,
+    this.content,
+    this.targetViews,
+  })  : id = id ?? Uuid().v4(),
         createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now(),
-        // input
         tagIds = tagIds ?? [],
         prototypeIds = prototypeIds ?? [],
         researchIds = researchIds ?? [],
         taskScheduleIds = taskScheduleIds ?? [];
-}
 
-//* JSON String 필드
-class IdeaField {
-  static const String collection = 'ideas';
-  // key
-  static const String id = 'id';
-  static const String createdAt = 'createdAt';
-  static const String updatedAt = 'updatedAt';
-  // input
-  static const String title = 'title';
-  static const String content = 'content';
-  static const String tagIds = 'tagIds';
-  static const String targetViews = 'targetViews';
-  // input (확장)
-  static const String prototypeIds = 'prototypeIds';
-  static const String researchIds = 'researchIds';
-  static const String taskScheduleIds = 'taskScheduleIds';
+  Idea copyWith({
+    String? id,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    String? title,
+    String? content,
+    List<String>? tagIds,
+    int? targetViews,
+    List<String>? prototypeIds,
+    List<String>? researchIds,
+    List<String>? taskScheduleIds,
+  }) {
+    return Idea(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      title: title ?? this.title,
+      content: content ?? this.content,
+      tagIds: tagIds ?? this.tagIds,
+      targetViews: targetViews ?? this.targetViews,
+      prototypeIds: prototypeIds ?? this.prototypeIds,
+      researchIds: researchIds ?? this.researchIds,
+      taskScheduleIds: taskScheduleIds ?? this.taskScheduleIds,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'id': id,
+      'createdAt': createdAt?.millisecondsSinceEpoch,
+      'updatedAt': updatedAt?.millisecondsSinceEpoch,
+      'title': title,
+      'content': content,
+      'tagIds': tagIds,
+      'targetViews': targetViews,
+      'prototypeIds': prototypeIds,
+      'researchIds': researchIds,
+      'taskScheduleIds': taskScheduleIds,
+    };
+  }
+
+  factory Idea.fromMap(Map<String, dynamic> map) {
+    return Idea(
+      id: map['id'] as String,
+      createdAt: map['createdAt'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
+          : null,
+      updatedAt: map['updatedAt'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] as int)
+          : null,
+      title: map['title'] as String,
+      content: map['content'] != null ? map['content'] as String : null,
+      tagIds: List<String>.from((map['tagIds'] as List<String>)),
+      targetViews:
+          map['targetViews'] != null ? map['targetViews'] as int : null,
+      prototypeIds: List<String>.from((map['prototypeIds'] as List<String>)),
+      researchIds: List<String>.from((map['researchIds'] as List<String>)),
+      taskScheduleIds:
+          List<String>.from((map['taskScheduleIds'] as List<String>)),
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory Idea.fromJson(String source) =>
+      Idea.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  @override
+  String toString() {
+    return 'Idea(id: $id, createdAt: $createdAt, updatedAt: $updatedAt, title: $title, content: $content, tagIds: $tagIds, targetViews: $targetViews, prototypeIds: $prototypeIds, researchIds: $researchIds, taskScheduleIds: $taskScheduleIds)';
+  }
+
+  @override
+  bool operator ==(covariant Idea other) {
+    if (identical(this, other)) return true;
+    final listEquals = const DeepCollectionEquality().equals;
+
+    return other.id == id &&
+        other.createdAt == createdAt &&
+        other.updatedAt == updatedAt &&
+        other.title == title &&
+        other.content == content &&
+        listEquals(other.tagIds, tagIds) &&
+        other.targetViews == targetViews &&
+        listEquals(other.prototypeIds, prototypeIds) &&
+        listEquals(other.researchIds, researchIds) &&
+        listEquals(other.taskScheduleIds, taskScheduleIds);
+  }
+
+  @override
+  int get hashCode {
+    return id.hashCode ^
+        createdAt.hashCode ^
+        updatedAt.hashCode ^
+        title.hashCode ^
+        content.hashCode ^
+        tagIds.hashCode ^
+        targetViews.hashCode ^
+        prototypeIds.hashCode ^
+        researchIds.hashCode ^
+        taskScheduleIds.hashCode;
+  }
 }
