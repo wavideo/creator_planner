@@ -2,6 +2,7 @@ import 'package:creator_planner/core/config/theme/colors.dart';
 import 'package:creator_planner/core/utils/%08format_util.dart';
 import 'package:creator_planner/data/mock_data.dart';
 import 'package:creator_planner/data/models/idea.dart';
+import 'package:creator_planner/data/services/idea_firestore_service.dart';
 import 'package:creator_planner/ui/pages/home/widgets/idea_card/prototype_section.dart';
 import 'package:creator_planner/ui/pages/home/widgets/idea_card/research_section.dart';
 import 'package:creator_planner/ui/pages/home/widgets/idea_card/tag_list_with_gradients.dart';
@@ -51,6 +52,13 @@ class _IdeaEditPageState extends State<IdeaEditPage> {
     super.dispose();
   }
 
+  Future<void> _addIdea() async {
+    await IdeaFirestoreService().addIdea(Idea(
+      title: _titleController.text,
+      content: _contentController.text.isEmpty ? null : _contentController.text,
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,6 +67,7 @@ class _IdeaEditPageState extends State<IdeaEditPage> {
           title: Text('아이디어 수정'),
           leading: IconButton(
             onPressed: () {
+              _addIdea();
               Navigator.pop(context);
             },
             icon: Icon(Icons.arrow_back_ios_new),
@@ -72,9 +81,9 @@ class _IdeaEditPageState extends State<IdeaEditPage> {
               horizontalPadding > 0 ? horizontalPadding : 6.0; // 최소 패딩 보장
           return Center(
             child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: horizontalPadding,
-                ),
+              padding: EdgeInsets.symmetric(
+                horizontal: horizontalPadding,
+              ),
               child: Column(
                 children: [
                   Expanded(

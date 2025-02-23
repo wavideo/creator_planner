@@ -1,5 +1,6 @@
 import 'package:creator_planner/core/config/theme/colors.dart';
 import 'package:creator_planner/data/mock_data.dart';
+import 'package:creator_planner/data/services/idea_firestore_service.dart';
 import 'package:creator_planner/ui/pages/home/widgets/idea_card.dart';
 import 'package:creator_planner/ui/pages/idea_edit/idea_edit_page.dart';
 import 'package:flutter/material.dart';
