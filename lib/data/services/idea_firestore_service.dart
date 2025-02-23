@@ -2,7 +2,7 @@ import 'package:creator_planner/data/models/idea.dart';
 import 'package:creator_planner/data/services/firebase_service.dart';
 
 class IdeaFirestoreService extends FirestoreService<Idea> {
-  IdeaFirestoreService() : super('ideaTags');
+  IdeaFirestoreService() : super('ideas');
 
   Future<void> addItem(Idea item) async {
     await add(item.id, item.toMap());
@@ -13,7 +13,8 @@ class IdeaFirestoreService extends FirestoreService<Idea> {
   }
 
   Future<List<Idea>> getItemList() async {
-    return await getList((data) => Idea.fromMap(data));
+    var list = await getList((data) => Idea.fromMap(data));
+    return list;
   }
 
   Future<void> updateItem(Idea item) async {

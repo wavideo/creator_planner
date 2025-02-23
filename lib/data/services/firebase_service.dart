@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:creator_planner/core/utils/debug.dart';
+import 'package:logger/logger.dart';
 
 class FirestoreService<T> {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -8,40 +8,57 @@ class FirestoreService<T> {
   FirestoreService(this.collectionPath);
 
   Future<void> add(String id, Map<String, dynamic> data) async {
-    tryCatch('Firebase에서 $collectionPath를 add', () async {
+    try {
       await _db.collection(collectionPath).doc(id).set(data);
-    });
+    } catch (e) {
+      Logger().e('Firebase에서 $collectionPath를 add 실패', error: e);
+      throw Exception("Firebase에서 $collectionPath를 add 과정에 문제가 발생했습니다. 에러: $e");
+    }
   }
 
   Future<T?> get(String id, T Function(Map<String, dynamic>) fromMap) async {
-    tryCatch('Firebase에서 $collectionPath를 get', () async {
+    try {
       DocumentSnapshot doc = await _db.collection(collectionPath).doc(id).get();
       if (doc.exists) {
         return fromMap(doc.data() as Map<String, dynamic>);
       }
       return null;
-    });
+    } catch (e) {
+      Logger().e('Firebase에서 $collectionPath를 get 실패', error: e);
+      throw Exception("Firebase에서 $collectionPath를 get 과정에 문제가 발생했습니다. 에러: $e");
+    }
   }
 
   Future<List<T>> getList(T Function(Map<String, dynamic>) fromMap) async {
-    tryCatch('Firebase에서 $collectionPath를 getList', () async {
+    try {
       QuerySnapshot querySnapshot = await _db.collection(collectionPath).get();
       return querySnapshot.docs
           .map((doc) => fromMap(doc.data() as Map<String, dynamic>))
           .toList();
-    });
-    return [];
+    } catch (e) {
+      Logger().e('Firebase에서 $collectionPath를 getList 실패', error: e);
+      throw Exception(
+          "Firebase에서 $collectionPath를 getList 과정에 문제가 발생했습니다. 에러: $e");
+    }
   }
 
   Future<void> update(String id, Map<String, dynamic> data) async {
-    tryCatch('Firebase에서 $collectionPath를 update', () async {
+    try {
       await _db.collection(collectionPath).doc(id).update(data);
-    });
+    } catch (e) {
+      Logger().e('Firebase에서 $collectionPath를 update 실패', error: e);
+      throw Exception(
+          "Firebase에서 $collectionPath를 update 과정에 문제가 발생했습니다. 에러: $e");
+    }
   }
 
   Future<void> delete(String id) async {
-    tryCatch('Firebase에서 $collectionPath를 delete', () async {
+    try {
       await _db.collection(collectionPath).doc(id).delete();
-    });
+    } catch (e) {
+      Logger().e('Firebase에서 $collectionPath를 delete 실패', error: e);
+      throw Exception(
+          "Firebase에서 $collectionPath를 delete 과정에 문제가 발생했습니다. 에러: $e");
+    }
   }
 }

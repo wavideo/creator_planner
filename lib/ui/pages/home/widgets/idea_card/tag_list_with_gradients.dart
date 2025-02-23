@@ -1,5 +1,7 @@
+import 'package:collection/collection.dart';
 import 'package:creator_planner/core/config/theme/colors.dart';
 import 'package:creator_planner/data/app_view_model.dart';
+import 'package:creator_planner/data/models/idea.dart';
 import 'package:creator_planner/data/models/idea_tag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,11 +37,16 @@ class _TagListWithGradientsState extends State<TagListWithGradients> {
   Widget build(BuildContext context) {
     return Expanded(
       child: Consumer(builder: (context, ref, child) {
-        List<String> tagIds = ref
+        final idea = ref
             .watch(appViewModelProvider)
             .ideas
-            .firstWhere((idea) => idea.id == widget.ideaId)
-            .tagIds;
+            .firstWhereOrNull((idea) => idea.id == widget.ideaId);
+
+        if (idea == null) {
+          return Center(child: Text('Idea not found'));
+        }
+
+        List<String> tagIds = idea.tagIds;
         List<IdeaTag> ideaTags = ref
             .watch(appViewModelProvider)
             .ideaTags
@@ -107,7 +114,6 @@ class IdeaTagItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
         alignment: Alignment.center,
         margin: EdgeInsets.only(right: 6),

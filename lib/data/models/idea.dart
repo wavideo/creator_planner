@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
 import 'package:uuid/uuid.dart';
 
@@ -63,8 +64,8 @@ class Idea {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,
-      'createdAt': createdAt?.millisecondsSinceEpoch,
-      'updatedAt': updatedAt?.millisecondsSinceEpoch,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
       'title': title,
       'content': content,
       'tagIds': tagIds,
@@ -76,24 +77,36 @@ class Idea {
   }
 
   factory Idea.fromMap(Map<String, dynamic> map) {
-    return Idea(
-      id: map['id'] as String,
+    var idea = Idea(
+      id: map['id'] is String ? map['id'] as String : map['id'].toString(),
       createdAt: map['createdAt'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
+          ? (map['createdAt'] as Timestamp).toDate()
           : null,
       updatedAt: map['updatedAt'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] as int)
+          ? (map['updatedAt'] as Timestamp).toDate()
           : null,
-      title: map['title'] as String,
+      title: map['title'] is String
+          ? map['title'] as String
+          : map['title'].toString(),
       content: map['content'] != null ? map['content'] as String : null,
-      tagIds: List<String>.from((map['tagIds'] as List<String>)),
+      tagIds: map['tagIds'] != null && map['tagIds'] is List
+          ? List<String>.from(map['tagIds'] as List)
+          : [],
       targetViews:
           map['targetViews'] != null ? map['targetViews'] as int : null,
-      prototypeIds: List<String>.from((map['prototypeIds'] as List<String>)),
-      researchIds: List<String>.from((map['researchIds'] as List<String>)),
+      prototypeIds: map['prototypeIds'] != null && map['prototypeIds'] is List
+          ? List<String>.from(map['prototypeIds'] as List)
+          : [],
+      researchIds: map['researchIds'] != null && map['researchIds'] is List
+          ? List<String>.from(map['researchIds'] as List)
+          : [],
       taskScheduleIds:
-          List<String>.from((map['taskScheduleIds'] as List<String>)),
+          map['taskScheduleIds'] != null && map['taskScheduleIds'] is List
+              ? List<String>.from(map['taskScheduleIds'] as List)
+              : [],
     );
+
+    return idea;
   }
 
   String toJson() => json.encode(toMap());

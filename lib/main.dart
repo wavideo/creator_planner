@@ -2,6 +2,7 @@ import 'package:creator_planner/core/config/theme/colors.dart';
 import 'package:creator_planner/core/config/theme/theme.dart';
 import 'package:creator_planner/ui/pages/home/home_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -13,7 +14,7 @@ void main() async {
   );
 
   await initializeDateFormatting('ko');
-  runApp(MyApp());
+  runApp(ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
