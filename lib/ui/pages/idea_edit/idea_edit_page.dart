@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:collection/collection.dart';
 import 'package:creator_planner/core/config/theme/colors.dart';
 import 'package:creator_planner/core/utils/format_util.dart';
@@ -57,22 +59,29 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
     super.dispose();
   }
 
-  Future<void> _updateIdea(WidgetRef ref) async {
+  Future<void> _updateIdea() async {
+    if (_titleController.text.isEmpty && _contentController.text.isEmpty) {
+      await ref.read(appViewModelProvider.notifier).deleteIdea(idea);
+      return;
+    }
     var updatedIdea = idea.copyWith(
-      title: _titleController.text,
+      title:
+          (_titleController.text.isEmpty && _contentController.text.isNotEmpty)
+              ? _contentController.text
+                  .substring(0, min(40, _contentController.text.length))
+              : _titleController.text,
       content:
           _contentController.text.isNotEmpty ? _contentController.text : null,
     );
-
     await ref.read(appViewModelProvider.notifier).updateIdea(updatedIdea);
   }
 
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      onPopInvokedWithResult: (didPop, result)async {
+      onPopInvokedWithResult: (didPop, result) async {
         if (didPop) {
-          await _updateIdea(ref);
+          await _updateIdea();
         }
       },
       child: Scaffold(
@@ -119,10 +128,11 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
                                   maxLength: 40,
                                   decoration: InputDecoration(
                                     counterStyle: TextStyle(
-                                      color: (_titleController.text.length > 30 &&
-                                              _titleFocusNode.hasFocus)
-                                          ? Colors.red
-                                          : Colors.transparent,
+                                      color:
+                                          (_titleController.text.length > 30 &&
+                                                  _titleFocusNode.hasFocus)
+                                              ? Colors.red
+                                              : Colors.transparent,
                                     ),
                                     hintText: '제목',
                                     border: InputBorder.none,
@@ -198,7 +208,7 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
                     // Builder(builder: (context) {
                     //   double keyboardHeight =
                     //       MediaQuery.of(context).viewInsets.bottom;
-      
+
                     //   return Positioned(
                     //       bottom: keyboardHeight > 0 ? keyboardHeight : 0,
                     //       left: 0,
