@@ -5,7 +5,11 @@ class FirestoreService<T> {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final String collectionPath;
 
-  FirestoreService(this.collectionPath);
+  FirestoreService(this.collectionPath){
+    _db.settings = const Settings(
+      persistenceEnabled: true,
+    );
+  }
 
   Future<void> add(String id, Map<String, dynamic> data) async {
     try {

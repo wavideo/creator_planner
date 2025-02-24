@@ -14,6 +14,7 @@ void main() async {
   );
 
   await initializeDateFormatting('ko');
+  await Firebase.initializeApp();
   runApp(ProviderScope(child: MyApp()));
 }
 
