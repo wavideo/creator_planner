@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:creator_planner/core/config/theme/colors.dart';
 import 'package:creator_planner/core/utils/format_util.dart';
 import 'package:creator_planner/data/app_view_model.dart';
@@ -8,10 +9,12 @@ import 'package:creator_planner/ui/pages/home/widgets/idea_card/tag_list_with_gr
 import 'package:creator_planner/ui/pages/home/widgets/idea_card/task_schedule_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logger/logger.dart';
 
 class IdeaEditPage extends ConsumerStatefulWidget {
   final String? id;
-  const IdeaEditPage({this.id, super.key});
+  final bool isCreated;
+  const IdeaEditPage({required this.id, this.isCreated = false, super.key});
 
   @override
   ConsumerState<IdeaEditPage> createState() => _IdeaEditPageState();
@@ -22,7 +25,7 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
   final TextEditingController _contentController = TextEditingController();
   final FocusNode _titleFocusNode = FocusNode();
   final FocusNode _contentFocusNode = FocusNode();
-  late Idea idea;
+  late Idea idea = Idea(title: '');
 
   @override
   void initState() {
@@ -31,17 +34,17 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
   }
 
   Future<void> _loadIdea() async {
-    if (widget.id == null) {
-      idea = Idea(title: '');
-      await ref.read(appViewModelProvider.notifier).createIdea(idea);
-    } else {
-      idea = ref
-          .watch(appViewModelProvider)
-          .ideas
-          .firstWhere((idea) => idea.id == widget.id);
-      _titleController.text = idea.title;
-      _contentController.text = idea.content ?? '';
-    }
+    Logger().d('아이디 : ${widget.id}');
+
+    idea = ref
+            .read(appViewModelProvider)
+            .ideas
+            .firstWhereOrNull((idea) => widget.id == idea.id) ??
+        Idea(title: '');
+
+    _titleController.text = idea.title;
+    _contentController.text = idea.content ?? '';
+
     if (widget.id != null && !_titleFocusNode.hasFocus) {
       _titleFocusNode.requestFocus();
     }

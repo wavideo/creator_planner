@@ -1,5 +1,6 @@
 import 'package:creator_planner/core/config/theme/colors.dart';
 import 'package:creator_planner/data/app_view_model.dart';
+import 'package:creator_planner/data/models/idea.dart';
 import 'package:creator_planner/ui/pages/home/widgets/idea_card.dart';
 import 'package:creator_planner/ui/pages/idea_edit/idea_edit_page.dart';
 import 'package:flutter/material.dart';
@@ -15,13 +16,19 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: Text('아이디어 보드'),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return IdeaEditPage();
-          }));
+      floatingActionButton: Consumer(
+        builder: (context, ref, child) {
+          return FloatingActionButton(
+            child: Icon(Icons.add),
+            onPressed: () async {
+              var idea = Idea(title: '');
+              await ref.read(appViewModelProvider.notifier).createIdea(idea);
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return IdeaEditPage(id: idea.id, isCreated: true);
+              }));
+            },
+          );
         },
-        child: Icon(Icons.add),
       ),
       body: LayoutBuilder(builder: (context, constraints) {
         double maxContentWidth = 600.0; // 최대 가로폭 제한

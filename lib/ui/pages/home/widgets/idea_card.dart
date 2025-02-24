@@ -15,9 +15,9 @@ class IdeaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isPrototype = true;
-    final bool isResearch = true;
-    final bool isTask = true;
+    final bool isPrototype = false;
+    final bool isResearch = false;
+    final bool isTask = false;
 
     return GestureDetector(
       onTap: () {

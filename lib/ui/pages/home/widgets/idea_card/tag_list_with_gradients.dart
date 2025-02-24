@@ -38,7 +38,7 @@ class _TagListWithGradientsState extends State<TagListWithGradients> {
     return Expanded(
       child: Consumer(builder: (context, ref, child) {
         final idea = ref
-            .watch(appViewModelProvider)
+            .read(appViewModelProvider)
             .ideas
             .firstWhereOrNull((idea) => idea.id == widget.ideaId);
 
