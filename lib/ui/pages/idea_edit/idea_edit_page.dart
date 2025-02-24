@@ -69,187 +69,193 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      backgroundColor: AppColor.containerWhite.of(context),
-      appBar: AppBar(
-        title: Text('아이디어 수정'),
-        leading: IconButton(
-          onPressed: () async {
-            await _updateIdea(ref);
-            Navigator.pop(context);
-          },
-          icon: Icon(Icons.arrow_back_ios_new),
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result)async {
+        if (didPop) {
+          await _updateIdea(ref);
+        }
+      },
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        backgroundColor: AppColor.containerWhite.of(context),
+        appBar: AppBar(
+          title: Text('아이디어 수정'),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_ios_new),
+            onPressed: () async {
+              Navigator.pop(context);
+            },
+          ),
         ),
-      ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          double maxContentWidth = 600.0; // 최대 가로폭 제한
-          double horizontalPadding =
-              (constraints.maxWidth - maxContentWidth) / 2;
-          horizontalPadding =
-              horizontalPadding > 0 ? horizontalPadding : 6.0; // 최소 패딩 보장
-          return Center(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: ListView(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            left: 20,
-                            right: 20,
-                            top: 20,
-                            bottom: 300,
-                          ),
-                          child: Column(
-                            children: [
-                              TextField(
-                                controller: _titleController,
-                                focusNode: _titleFocusNode,
-                                minLines: 1,
-                                maxLines: 2,
-                                maxLength: 40,
-                                decoration: InputDecoration(
-                                  counterStyle: TextStyle(
-                                    color: (_titleController.text.length > 30 &&
-                                            _titleFocusNode.hasFocus)
-                                        ? Colors.red
-                                        : Colors.transparent,
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            double maxContentWidth = 600.0; // 최대 가로폭 제한
+            double horizontalPadding =
+                (constraints.maxWidth - maxContentWidth) / 2;
+            horizontalPadding =
+                horizontalPadding > 0 ? horizontalPadding : 6.0; // 최소 패딩 보장
+            return Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: ListView(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              left: 20,
+                              right: 20,
+                              top: 20,
+                              bottom: 300,
+                            ),
+                            child: Column(
+                              children: [
+                                TextField(
+                                  controller: _titleController,
+                                  focusNode: _titleFocusNode,
+                                  minLines: 1,
+                                  maxLines: 2,
+                                  maxLength: 40,
+                                  decoration: InputDecoration(
+                                    counterStyle: TextStyle(
+                                      color: (_titleController.text.length > 30 &&
+                                              _titleFocusNode.hasFocus)
+                                          ? Colors.red
+                                          : Colors.transparent,
+                                    ),
+                                    hintText: '제목',
+                                    border: InputBorder.none,
                                   ),
-                                  hintText: '제목',
-                                  border: InputBorder.none,
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  onChanged: (text) {
+                                    if (text.length >= 40 &&
+                                        _contentController.text.isEmpty) {
+                                      _contentController.text =
+                                          _titleController.text;
+                                      _titleFocusNode.unfocus();
+                                      FocusScope.of(
+                                        context,
+                                      ).requestFocus(_contentFocusNode);
+                                    }
+                                    setState(() {
+                                      _contentController;
+                                    });
+                                  },
+                                  textInputAction: TextInputAction.next,
                                 ),
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w600,
+                                TextField(
+                                  controller: _contentController,
+                                  focusNode: _contentFocusNode,
+                                  minLines: 1,
+                                  maxLines: 999,
+                                  decoration: InputDecoration(
+                                    hintText: '메모',
+                                    border: InputBorder.none,
+                                  ),
+                                  onTap: () {
+                                    setState(() {
+                                      _titleFocusNode;
+                                    });
+                                  },
+                                  onChanged: (text) {
+                                    setState(() {
+                                      _titleFocusNode;
+                                    });
+                                  },
                                 ),
-                                onChanged: (text) {
-                                  if (text.length >= 40 &&
-                                      _contentController.text.isEmpty) {
-                                    _contentController.text =
-                                        _titleController.text;
-                                    _titleFocusNode.unfocus();
-                                    FocusScope.of(
-                                      context,
-                                    ).requestFocus(_contentFocusNode);
-                                  }
-                                  setState(() {
-                                    _contentController;
-                                  });
-                                },
-                                textInputAction: TextInputAction.next,
-                              ),
-                              TextField(
-                                controller: _contentController,
-                                focusNode: _contentFocusNode,
-                                minLines: 1,
-                                maxLines: 999,
-                                decoration: InputDecoration(
-                                  hintText: '메모',
-                                  border: InputBorder.none,
+                                SizedBox(height: 600),
+                                Container(
+                                  padding: EdgeInsets.symmetric(vertical: 10),
+                                  height: 50,
+                                  child: Row(
+                                    children: [
+                                      TagListWithGradients(ideaId: idea.id),
+                                    ],
+                                  ),
                                 ),
-                                onTap: () {
-                                  setState(() {
-                                    _titleFocusNode;
-                                  });
-                                },
-                                onChanged: (text) {
-                                  setState(() {
-                                    _titleFocusNode;
-                                  });
-                                },
-                              ),
-                              SizedBox(height: 600),
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                                height: 50,
-                                child: Row(
-                                  children: [
-                                    TagListWithGradients(ideaId: idea.id),
-                                  ],
+                                PrototypeSection(
+                                  title: '내가 정한 이름',
+                                  channelName: '내 채널',
+                                  targetViews: 13004,
                                 ),
-                              ),
-                              PrototypeSection(
-                                title: '내가 정한 이름',
-                                channelName: '내 채널',
-                                targetViews: 13004,
-                              ),
-                              ResearchSection(
-                                title: '반드시 봐야하는 인터넷 꿀팁 3가지',
-                                channelName: '아정당',
-                                views: 22232200,
-                                subscribers: 1000000,
-                              ),
-                              TaskScheduleSection(),
-                            ],
+                                ResearchSection(
+                                  title: '반드시 봐야하는 인터넷 꿀팁 3가지',
+                                  channelName: '아정당',
+                                  views: 22232200,
+                                  subscribers: 1000000,
+                                ),
+                                TaskScheduleSection(),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  // Builder(builder: (context) {
-                  //   double keyboardHeight =
-                  //       MediaQuery.of(context).viewInsets.bottom;
-
-                  //   return Positioned(
-                  //       bottom: keyboardHeight > 0 ? keyboardHeight : 0,
-                  //       left: 0,
-                  //       right: 0,
-                  //       child: Container(
-                  //           padding: EdgeInsets.all(10),
-                  //           decoration:
-                  //               BoxDecoration(color: Colors.white, boxShadow: [
-                  //             // BoxShadow(
-                  //             //   color: Colors.black26.withValues(alpha: 0.04),
-                  //             //   spreadRadius: 0,
-                  //             //   blurRadius: 10,
-                  //             //   offset: Offset(0, -10),
-                  //             // )
-                  //           ]),
-                  //           height: 50,
-                  //           child: Row(
-                  //               crossAxisAlignment: CrossAxisAlignment.center,
-                  //               children: [
-                  //                 SizedBox(
-                  //                   width: 16,
-                  //                 ),
-                  //                 Row(
-                  //                   mainAxisAlignment: MainAxisAlignment.center,
-                  //                   crossAxisAlignment:
-                  //                       CrossAxisAlignment.center,
-                  //                   children: [
-                  //                     Icon(Icons.new_label,
-                  //                         size: 24,
-                  //                         color: AppColor.gray10.of(context)),
-                  //                     SizedBox(
-                  //                       width: 4,
-                  //                     ),
-                  //                     Text(
-                  //                       '태그 추가',
-                  //                       style: TextStyle(
-                  //                           color: AppColor.gray10.of(context),
-                  //                           fontSize: 14,
-                  //                           fontWeight: FontWeight.bold),
-                  //                     ),
-                  //                   ],
-                  //                 ),
-                  //                 Spacer(),
-                  //                 groupTargetViews(context),
-                  //                 SizedBox(
-                  //                   width: 20,
-                  //                 ),
-                  //               ])));
-                  // })
-                ],
+                    // Builder(builder: (context) {
+                    //   double keyboardHeight =
+                    //       MediaQuery.of(context).viewInsets.bottom;
+      
+                    //   return Positioned(
+                    //       bottom: keyboardHeight > 0 ? keyboardHeight : 0,
+                    //       left: 0,
+                    //       right: 0,
+                    //       child: Container(
+                    //           padding: EdgeInsets.all(10),
+                    //           decoration:
+                    //               BoxDecoration(color: Colors.white, boxShadow: [
+                    //             // BoxShadow(
+                    //             //   color: Colors.black26.withValues(alpha: 0.04),
+                    //             //   spreadRadius: 0,
+                    //             //   blurRadius: 10,
+                    //             //   offset: Offset(0, -10),
+                    //             // )
+                    //           ]),
+                    //           height: 50,
+                    //           child: Row(
+                    //               crossAxisAlignment: CrossAxisAlignment.center,
+                    //               children: [
+                    //                 SizedBox(
+                    //                   width: 16,
+                    //                 ),
+                    //                 Row(
+                    //                   mainAxisAlignment: MainAxisAlignment.center,
+                    //                   crossAxisAlignment:
+                    //                       CrossAxisAlignment.center,
+                    //                   children: [
+                    //                     Icon(Icons.new_label,
+                    //                         size: 24,
+                    //                         color: AppColor.gray10.of(context)),
+                    //                     SizedBox(
+                    //                       width: 4,
+                    //                     ),
+                    //                     Text(
+                    //                       '태그 추가',
+                    //                       style: TextStyle(
+                    //                           color: AppColor.gray10.of(context),
+                    //                           fontSize: 14,
+                    //                           fontWeight: FontWeight.bold),
+                    //                     ),
+                    //                   ],
+                    //                 ),
+                    //                 Spacer(),
+                    //                 groupTargetViews(context),
+                    //                 SizedBox(
+                    //                   width: 20,
+                    //                 ),
+                    //               ])));
+                    // })
+                  ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
+        bottomNavigationBar: Container(height: 30),
       ),
-      bottomNavigationBar: Container(height: 30),
     );
   }
 
