@@ -13,13 +13,11 @@ class IdeaFirestoreService extends FirestoreService<Idea> {
   }
 
   Future<List<Idea>> getItemList() async {
-    var list = await getList((data) => Idea.fromMap(data));
-    return list;
+    return await getList((data) => Idea.fromMap(data));
   }
 
   Future<void> updateItem(Idea item) async {
-    Idea updatedItem = item.copyWith(updatedAt: DateTime.now());
-    await update(item.id, updatedItem.toMap());
+    await update(item.id, item.toMap());
   }
 
   Future<void> deleteItem(String id) async {

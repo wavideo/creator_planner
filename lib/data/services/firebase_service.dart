@@ -7,7 +7,7 @@ class FirestoreService<T> {
 
   FirestoreService(this.collectionPath){
     _db.settings = const Settings(
-      persistenceEnabled: true,
+      persistenceEnabled:true,
     );
   }
 

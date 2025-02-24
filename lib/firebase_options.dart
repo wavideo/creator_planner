@@ -85,4 +85,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'creator-planner-8aad8.firebasestorage.app',
     measurementId: 'G-7K6Z7HJZHV',
   );
+
 }

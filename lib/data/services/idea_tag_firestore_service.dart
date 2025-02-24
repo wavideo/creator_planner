@@ -17,8 +17,7 @@ class IdeaTagFirestoreService extends FirestoreService<IdeaTag> {
   }
 
   Future<void> updateItem(IdeaTag item) async {
-    IdeaTag updatedItem = item.copyWith(updatedAt: DateTime.now());
-    await update(item.id, updatedItem.toMap());
+    await update(item.id, item.toMap());
   }
 
   Future<void> deleteItem(String id) async {

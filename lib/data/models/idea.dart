@@ -3,9 +3,10 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
+import 'package:creator_planner/core/interfaces/mappable.dart';
 import 'package:uuid/uuid.dart';
 
-class Idea {
+class Idea implements Mappable<Idea> {
   final String id;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -35,6 +36,7 @@ class Idea {
         researchIds = researchIds ?? [],
         taskScheduleIds = taskScheduleIds ?? [];
 
+  @override
   Idea copyWith({
     String? id,
     DateTime? createdAt,
@@ -65,6 +67,7 @@ class Idea {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,
@@ -113,6 +116,7 @@ class Idea {
     return idea;
   }
 
+  @override
   String toJson() => json.encode(toMap());
 
   factory Idea.fromJson(String source) =>

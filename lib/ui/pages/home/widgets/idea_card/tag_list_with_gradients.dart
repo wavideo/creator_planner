@@ -1,7 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:creator_planner/core/config/theme/colors.dart';
 import 'package:creator_planner/data/app_view_model.dart';
-import 'package:creator_planner/data/models/idea.dart';
 import 'package:creator_planner/data/models/idea_tag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
