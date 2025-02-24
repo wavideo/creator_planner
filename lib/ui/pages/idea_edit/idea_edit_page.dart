@@ -70,8 +70,7 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
               ? _contentController.text
                   .substring(0, min(40, _contentController.text.length))
               : _titleController.text,
-      content:
-          _contentController.text,
+      content: _contentController.text,
     );
     await ref.read(appViewModelProvider.notifier).updateIdea(updatedIdea);
   }
@@ -124,7 +123,7 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
                                   controller: _titleController,
                                   focusNode: _titleFocusNode,
                                   minLines: 1,
-                                  maxLines: 2,
+                                  maxLines: 5,
                                   maxLength: 40,
                                   decoration: InputDecoration(
                                     counterStyle: TextStyle(

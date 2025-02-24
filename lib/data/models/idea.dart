@@ -52,7 +52,11 @@ class Idea {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       title: title ?? this.title,
-      content: content ?? this.content,
+      content: content == null
+          ? this.content
+          : content.isEmpty
+              ? null
+              : content,
       tagIds: tagIds ?? this.tagIds,
       targetViews: targetViews ?? this.targetViews,
       prototypeIds: prototypeIds ?? this.prototypeIds,
