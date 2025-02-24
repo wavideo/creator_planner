@@ -71,7 +71,7 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
                   .substring(0, min(40, _contentController.text.length))
               : _titleController.text,
       content:
-          _contentController.text.isNotEmpty ? _contentController.text : null,
+          _contentController.text,
     );
     await ref.read(appViewModelProvider.notifier).updateIdea(updatedIdea);
   }
