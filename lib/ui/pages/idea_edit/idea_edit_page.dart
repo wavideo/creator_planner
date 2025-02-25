@@ -1,9 +1,9 @@
 import 'dart:math';
 
-import 'package:collection/collection.dart';
 import 'package:creator_planner/core/config/theme/colors.dart';
 import 'package:creator_planner/core/utils/format_util.dart';
 import 'package:creator_planner/data/app_view_model.dart';
+import 'package:creator_planner/data/message_view_model.dart';
 import 'package:creator_planner/data/models/idea.dart';
 import 'package:creator_planner/ui/pages/home/widgets/idea_card/prototype_section.dart';
 import 'package:creator_planner/ui/pages/home/widgets/idea_card/research_section.dart';
@@ -14,9 +14,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
 
 class IdeaEditPage extends ConsumerStatefulWidget {
-  final String? id;
+  final Idea idea;
   final bool isCreated;
-  const IdeaEditPage({required this.id, this.isCreated = false, super.key});
+  const IdeaEditPage({required this.idea, this.isCreated = false, super.key});
 
   @override
   ConsumerState<IdeaEditPage> createState() => _IdeaEditPageState();
@@ -27,7 +27,6 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
   final TextEditingController _contentController = TextEditingController();
   final FocusNode _titleFocusNode = FocusNode();
   final FocusNode _contentFocusNode = FocusNode();
-  late Idea idea = Idea(title: '');
 
   @override
   void initState() {
@@ -36,18 +35,11 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
   }
 
   Future<void> _loadIdea() async {
-    Logger().d('아이디 : ${widget.id}');
+    Logger().d('아이디 : ${widget.idea.id}');
+    _titleController.text = widget.idea.title;
+    _contentController.text = widget.idea.content ?? '';
 
-    idea = ref
-            .read(appViewModelProvider)
-            .ideas
-            .firstWhereOrNull((idea) => widget.id == idea.id) ??
-        Idea(title: '');
-
-    _titleController.text = idea.title;
-    _contentController.text = idea.content ?? '';
-
-    if (widget.id != null && !_titleFocusNode.hasFocus) {
+    if (widget.isCreated && !_titleFocusNode.hasFocus) {
       _titleFocusNode.requestFocus();
     }
   }
@@ -60,11 +52,22 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
   }
 
   Future<void> _updateIdea() async {
-    if (_titleController.text.isEmpty && _contentController.text.isEmpty) {
-      await ref.read(appViewModelProvider.notifier).deleteIdea(idea);
+    bool isEmpty =
+        _titleController.text.isEmpty && _contentController.text.isEmpty;
+    bool isChanged = (_titleController.text != widget.idea.title ||
+        _contentController.text != (widget.idea.content ?? ""));
+
+    if (widget.isCreated && isEmpty) return;
+    if (!widget.isCreated && isEmpty) {
+      ref.read(homePageMessageProvider.notifier).setMessage('아이디어가 삭제되었습니다.');
+      await ref.read(appViewModelProvider.notifier).deleteIdea(widget.idea);
       return;
     }
-    var updatedIdea = idea.copyWith(
+    if (!isChanged) {
+      return;
+    }
+
+    var updatedIdea = widget.idea.copyWith(
       title:
           (_titleController.text.isEmpty && _contentController.text.isNotEmpty)
               ? _contentController.text
@@ -72,7 +75,14 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
               : _titleController.text,
       content: _contentController.text,
     );
-    await ref.read(appViewModelProvider.notifier).updateIdea(updatedIdea);
+
+    if (widget.isCreated) {
+      ref.read(homePageMessageProvider.notifier).setMessage('새로운 아이디어를 저장했습니다');
+      await ref.read(appViewModelProvider.notifier).createIdea(updatedIdea);
+    } else {
+      ref.read(homePageMessageProvider.notifier).setMessage('아이디어를 수정했습니다.');
+      await ref.read(appViewModelProvider.notifier).updateIdea(updatedIdea);
+    }
   }
 
   @override
@@ -182,7 +192,8 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
                                   height: 50,
                                   child: Row(
                                     children: [
-                                      TagListWithGradients(ideaId: idea.id),
+                                      TagListWithGradients(
+                                          ideaId: widget.idea.id),
                                     ],
                                   ),
                                 ),

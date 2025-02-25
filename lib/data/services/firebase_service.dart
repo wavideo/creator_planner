@@ -5,15 +5,17 @@ class FirestoreService<T> {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final String collectionPath;
 
-  FirestoreService(this.collectionPath){
+  FirestoreService(this.collectionPath) {
     _db.settings = const Settings(
-      persistenceEnabled:true,
+      persistenceEnabled: true,
+      cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
     );
   }
 
   Future<void> add(String id, Map<String, dynamic> data) async {
     try {
       await _db.collection(collectionPath).doc(id).set(data);
+      await _db.collection(collectionPath).doc(id).get();
     } catch (e) {
       Logger().e('Firebase에서 $collectionPath를 add 실패', error: e);
       throw Exception("Firebase에서 $collectionPath를 add 과정에 문제가 발생했습니다. 에러: $e");
@@ -33,22 +35,28 @@ class FirestoreService<T> {
     }
   }
 
-  Future<List<T>> getList(T Function(Map<String, dynamic>) fromMap) async {
+  Stream<List<T>> getList(T Function(Map<String, dynamic>) fromMap) {
     try {
-      QuerySnapshot querySnapshot = await _db.collection(collectionPath).get();
-      return querySnapshot.docs
-          .map((doc) => fromMap(doc.data() as Map<String, dynamic>))
-          .toList();
+      // Firestore의 실시간 업데이트 기능을 사용
+      return _db
+          .collection(collectionPath)
+          .snapshots()
+          .map(
+        (querySnapshot) {
+          return querySnapshot.docs.map((doc) => fromMap(doc.data())).toList();
+        },
+      );
     } catch (e) {
-      Logger().e('Firebase에서 $collectionPath를 getList 실패', error: e);
+      Logger().e('Firebase에서 $collectionPath를 getListStream 실패', error: e);
       throw Exception(
-          "Firebase에서 $collectionPath를 getList 과정에 문제가 발생했습니다. 에러: $e");
+          "Firebase에서 $collectionPath를 getListStream 과정에 문제가 발생했습니다. 에러: $e");
     }
   }
 
   Future<void> update(String id, Map<String, dynamic> data) async {
     try {
       await _db.collection(collectionPath).doc(id).update(data);
+      await _db.collection(collectionPath).doc(id).get();
     } catch (e) {
       Logger().e('Firebase에서 $collectionPath를 update 실패', error: e);
       throw Exception(
@@ -59,6 +67,7 @@ class FirestoreService<T> {
   Future<void> delete(String id) async {
     try {
       await _db.collection(collectionPath).doc(id).delete();
+      await _db.collection(collectionPath).doc(id).get();
     } catch (e) {
       Logger().e('Firebase에서 $collectionPath를 delete 실패', error: e);
       throw Exception(

@@ -1,20 +1,59 @@
 import 'package:creator_planner/core/config/theme/colors.dart';
 import 'package:creator_planner/data/app_view_model.dart';
+import 'package:creator_planner/data/message_view_model.dart';
 import 'package:creator_planner/data/models/idea.dart';
 import 'package:creator_planner/ui/pages/home/widgets/idea_card.dart';
 import 'package:creator_planner/ui/pages/idea_edit/idea_edit_page.dart';
+import 'package:creator_planner/ui/widgets/custom_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage> {
+  ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final message = ref.watch(homePageMessageProvider);
+    Future.delayed(Duration(milliseconds: 300), () {
+      if (message.isNotEmpty) {
+        final overlay = Overlay.of(context);
+        final overlayEntry = OverlayEntry(
+          builder: (context) => CustomSnackbar(message: message),
+        );
+        overlay.insert(overlayEntry);
+
+        // 잠시 후 OverlayEntry 제거 (2초 후)
+        Future.delayed(Duration(seconds: 2), () {
+          overlayEntry.remove();
+        });
+
+        // 메시지 표시 후 메시지를 비워줍니다 (1번만 띄우도록)
+        ref.read(homePageMessageProvider.notifier).clearMessage();
+      }
+    });
     return Scaffold(
       backgroundColor: AppColor.containerWhite.of(context),
       appBar: AppBar(
-        title: Text('아이디어 보드'),
+        title: GestureDetector(
+            onTap: () {
+              ref
+                  .read(homePageMessageProvider.notifier)
+                  .setMessage('아이디어가 삭제되었습니다.');
+            },
+            child: Text('아이디어 보드')),
       ),
       floatingActionButton: Consumer(
         builder: (context, ref, child) {
@@ -22,9 +61,8 @@ class HomePage extends StatelessWidget {
             child: Icon(Icons.add),
             onPressed: () async {
               var idea = Idea(title: '');
-              await ref.read(appViewModelProvider.notifier).createIdea(idea);
               Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return IdeaEditPage(id: idea.id, isCreated: true);
+                return IdeaEditPage(idea: idea, isCreated: true);
               }));
             },
           );
@@ -37,6 +75,7 @@ class HomePage extends StatelessWidget {
             horizontalPadding > 0 ? horizontalPadding : 6.0; // 최소 패딩 보장
         return Center(
           child: ListView(
+            controller: _scrollController,
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(
@@ -45,14 +84,32 @@ class HomePage extends StatelessWidget {
                 child: Column(
                   children: [
                     Consumer(builder: (context, ref, child) {
-                      var state = ref.watch(appViewModelProvider);
+                      var ideasState = ref.watch(appViewModelProvider).ideas;
+
+                      ref.listen<List<Idea>>(
+                        appViewModelProvider
+                            .select((viewModel) => viewModel.ideas),
+                        (previous, next) {
+                          if (_scrollController.hasClients) {
+                            _scrollController.animateTo(
+                              0.0,
+                              duration: Duration(milliseconds: 500),
+                              curve: Curves.easeInOut,
+                            );
+                          }
+                        },
+                      );
+
                       return ListView.builder(
-                          itemCount: state.ideas.length,
+                          itemCount: ideasState.length,
                           shrinkWrap: true,
                           physics: NeverScrollableScrollPhysics(),
                           itemBuilder: (context, index) {
-                            final idea = state.ideas[index];
-                            return IdeaCard(id: idea.id);
+                            final sotredIdea = List<Idea>.from(ideasState)
+                              ..sort(
+                                  (a, b) => b.updatedAt.compareTo(a.updatedAt));
+                            final idea = sotredIdea[index];
+                            return IdeaCard(idea: idea);
                           });
                     })
                   ],

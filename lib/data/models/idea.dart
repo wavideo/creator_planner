@@ -3,13 +3,16 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
-import 'package:creator_planner/core/interfaces/mappable.dart';
+import 'package:creator_planner/data/models/interfaces/base_model.dart';
 import 'package:uuid/uuid.dart';
 
-class Idea implements Mappable<Idea> {
+class Idea implements BaseModel<Idea> {
+  @override
   final String id;
-  final DateTime? createdAt;
-  final DateTime? updatedAt;
+  @override
+  final DateTime createdAt;
+  @override
+  final DateTime updatedAt;
   final String title;
   final String? content;
   final List<String> tagIds;

@@ -12,8 +12,8 @@ class IdeaFirestoreService extends FirestoreService<Idea> {
     return await get(id, (data) => Idea.fromMap(data));
   }
 
-  Future<List<Idea>> getItemList() async {
-    return await getList((data) => Idea.fromMap(data));
+  Stream<List<Idea>> getItemList() {
+    return getList((data) => Idea.fromMap(data));
   }
 
   Future<void> updateItem(Idea item) async {

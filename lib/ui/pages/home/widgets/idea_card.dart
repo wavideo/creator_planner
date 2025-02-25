@@ -1,3 +1,4 @@
+import 'package:creator_planner/data/models/idea.dart';
 import 'package:creator_planner/ui/pages/home/widgets/idea_card/idea_detail_section.dart';
 import 'package:creator_planner/ui/pages/home/widgets/idea_card/research_section.dart';
 import 'package:creator_planner/ui/pages/home/widgets/idea_card/prototype_section.dart';
@@ -7,9 +8,9 @@ import 'package:creator_planner/ui/widgets/border_card.dart';
 import 'package:flutter/material.dart';
 
 class IdeaCard extends StatelessWidget {
-  final String id;
+  final Idea idea;
   const IdeaCard({
-    required this.id,
+    required this.idea,
     super.key,
   });
 
@@ -21,7 +22,8 @@ class IdeaCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => IdeaEditPage(id:id)));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => IdeaEditPage(idea: idea)));
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -30,7 +32,7 @@ class IdeaCard extends StatelessWidget {
           paddingVertical: 20,
           child: Column(
             children: [
-              IdeaDetailSection(id: id),
+              IdeaDetailSection(idea: idea),
               if (isPrototype)
                 PrototypeSection(
                     title: '내가 정한 이름', channelName: '내 채널', targetViews: 13004),
