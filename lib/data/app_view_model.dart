@@ -9,7 +9,8 @@ import 'package:logger/logger.dart';
 class AppState {
   final List<Idea> ideas;
   final List<IdeaTag> ideaTags;
-  AppState({required this.ideas, required this.ideaTags});
+  final Idea? draftIdea; // 임시 상태 추가
+  AppState({required this.ideas, required this.ideaTags, this.draftIdea});
 }
 
 class AppViewModel extends StateNotifier<AppState> {
@@ -17,7 +18,7 @@ class AppViewModel extends StateNotifier<AppState> {
   Stream<List<Idea>>? _ideasStream;
   Stream<List<IdeaTag>>? _ideaTagsStream;
 
-  AppViewModel() : super(AppState(ideas: [], ideaTags: [])) {
+  AppViewModel() : super(AppState(ideas: [], ideaTags: [], draftIdea: null)) {
     _init();
   }
 
@@ -41,11 +42,11 @@ class AppViewModel extends StateNotifier<AppState> {
 
       // 스트림에 변화가 있을 때마다 상태를 업데이트
       _ideasStream?.listen((ideas) {
-        state = AppState(ideas: ideas, ideaTags: state.ideaTags);
+        setState(ideas: ideas);
       });
 
       _ideaTagsStream?.listen((ideaTags) {
-        state = AppState(ideas: state.ideas, ideaTags: ideaTags);
+        setState(ideaTags: ideaTags);
       });
 
       Logger().d('AppViewModel에서 모든 데이터를 init');
@@ -57,9 +58,30 @@ class AppViewModel extends StateNotifier<AppState> {
     }
   }
 
+  void setState({List<Idea>? ideas, List<IdeaTag>? ideaTags, Idea? draftIdea}) {
+    state = AppState(
+        ideas: ideas ?? state.ideas,
+        ideaTags: ideaTags ?? state.ideaTags,
+        draftIdea: draftIdea ?? state.draftIdea);
+  }
+
+  void startDraftIdea(Idea idea) {
+    setState(draftIdea: idea);
+    Logger().d('startDraftIdea 호출됨, draftIdea: ${state.draftIdea?.id}');
+  }
+
+  void updateDraftIdea(Idea idea) {
+    if (state.draftIdea == null) return;
+    setState(draftIdea: idea);
+  }
+
+  void clearDraftIdea() {
+    setState(draftIdea: null);
+  }
+
   Future<void> createIdea(Idea idea) async {
     state.ideas.add(idea);
-    state = AppState(ideas: state.ideas, ideaTags: state.ideaTags);
+    setState();
     await IdeaFirestoreService().addItem(idea);
     Logger().d('AppViewModel에서 Idea()를 create');
   }
@@ -72,7 +94,7 @@ class AppViewModel extends StateNotifier<AppState> {
     List<Idea> ideas =
         state.ideas.map((item) => item.id == idea.id ? idea : item).toList();
 
-    state = AppState(ideas: ideas, ideaTags: state.ideaTags);
+    setState(ideas: ideas);
     await IdeaFirestoreService().updateItem(idea);
 
     Logger().d('AppViewModel에서 Idea()를 update');
@@ -80,14 +102,14 @@ class AppViewModel extends StateNotifier<AppState> {
 
   Future<void> deleteIdea(Idea idea) async {
     state.ideas.removeWhere((item) => item.id == idea.id);
-    state = AppState(ideas: state.ideas, ideaTags: state.ideaTags);
+    setState();
     await IdeaFirestoreService().deleteItem(idea.id);
     Logger().d('AppViewModel에서 Idea()를 delete');
   }
 
   Future<void> createIdeaTag(IdeaTag ideaTag) async {
     state.ideaTags.add(ideaTag);
-    state = AppState(ideas: state.ideas, ideaTags: state.ideaTags);
+    setState();
     await IdeaTagFirestoreService().addItem(ideaTag);
     Logger().d('AppViewModel에서 IdeaTag()를 create');
   }
@@ -96,14 +118,14 @@ class AppViewModel extends StateNotifier<AppState> {
     var ideaTags = state.ideaTags
         .map((item) => item.id == ideaTag.id ? ideaTag : item)
         .toList();
-    state = AppState(ideas: state.ideas, ideaTags: ideaTags);
+    setState(ideaTags: ideaTags);
     await IdeaTagFirestoreService().updateItem(ideaTag);
     Logger().d('AppViewModel에서 IdeaTag()를 update');
   }
 
   Future<void> deleteIdeaTag(IdeaTag ideaTag) async {
     state.ideaTags.removeWhere((item) => item.id == ideaTag.id);
-    state = AppState(ideas: state.ideas, ideaTags: state.ideaTags);
+    setState();
     await IdeaTagFirestoreService().deleteItem(ideaTag.id);
     Logger().d('AppViewModel에서 IdeaTag()를 delete');
   }

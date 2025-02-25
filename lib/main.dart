@@ -1,6 +1,5 @@
 import 'package:creator_planner/core/config/theme/colors.dart';
 import 'package:creator_planner/core/config/theme/theme.dart';
-import 'package:creator_planner/ui/pages/auth/%08auth_page.dart';
 import 'package:creator_planner/ui/pages/home/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

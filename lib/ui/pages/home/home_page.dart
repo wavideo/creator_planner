@@ -44,6 +44,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         ref.read(homePageMessageProvider.notifier).clearMessage();
       }
     });
+
     return Scaffold(
       backgroundColor: AppColor.containerWhite.of(context),
       appBar: AppBar(
@@ -61,6 +62,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             child: Icon(Icons.add),
             onPressed: () async {
               var idea = Idea(title: '');
+              ref.read(appViewModelProvider.notifier).startDraftIdea(idea);
               Navigator.push(context, MaterialPageRoute(builder: (context) {
                 return IdeaEditPage(idea: idea, isCreated: true);
               }));
@@ -81,39 +83,34 @@ class _HomePageState extends ConsumerState<HomePage> {
                 padding: EdgeInsets.symmetric(
                   horizontal: horizontalPadding,
                 ),
-                child: Column(
-                  children: [
-                    Consumer(builder: (context, ref, child) {
-                      var ideasState = ref.watch(appViewModelProvider).ideas;
+                child: Consumer(builder: (context, ref, child) {
+                  var ideasState = ref.watch(appViewModelProvider).ideas;
 
-                      ref.listen<List<Idea>>(
-                        appViewModelProvider
-                            .select((viewModel) => viewModel.ideas),
-                        (previous, next) {
-                          if (_scrollController.hasClients) {
-                            _scrollController.animateTo(
-                              0.0,
-                              duration: Duration(milliseconds: 500),
-                              curve: Curves.easeInOut,
-                            );
-                          }
-                        },
-                      );
+                  ref.listen<List<Idea>>(
+                    appViewModelProvider.select((viewModel) => viewModel.ideas),
+                    (previous, next) {
+                      if (_scrollController.hasClients) {
+                        _scrollController.animateTo(
+                          0.0,
+                          duration: Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        );
+                      }
+                    },
+                  );
 
-                      return ListView.builder(
-                          itemCount: ideasState.length,
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            final sotredIdea = List<Idea>.from(ideasState)
-                              ..sort(
-                                  (a, b) => b.updatedAt.compareTo(a.updatedAt));
-                            final idea = sotredIdea[index];
-                            return IdeaCard(idea: idea);
-                          });
-                    })
-                  ],
-                ),
+                  final sortedIdea = List<Idea>.from(ideasState)
+                    ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: sortedIdea.length,
+                    itemBuilder: (context, index) {
+                      return IdeaCard(idea: sortedIdea[index]);
+                    },
+                  );
+                }),
               ),
             ],
           ),
