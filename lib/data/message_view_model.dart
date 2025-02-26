@@ -19,6 +19,6 @@ final homePageMessageProvider = StateNotifierProvider<MessageProvider, String>(
   (ref) => MessageProvider(),
 );
 
-final xxxPageMessageProvider = StateNotifierProvider<MessageProvider, String>(
+final IdeaEditPageMessageProvider = StateNotifierProvider<MessageProvider, String>(
   (ref) => MessageProvider(),
 );

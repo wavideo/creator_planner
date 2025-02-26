@@ -113,20 +113,22 @@ class IdeaTagItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        alignment: Alignment.center,
-        margin: EdgeInsets.only(right: 6),
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        decoration: BoxDecoration(
-          color: AppColor.lightGray10.of(context),
-          borderRadius: BorderRadius.circular(18),
-        ),
-        child: Text(
-          ideaTag.name,
-          style: TextStyle(
-              color: AppColor.gray10.of(context),
-              fontSize: 12,
-              fontWeight: FontWeight.w600),
-        ));
+    return IntrinsicWidth(
+      child: Container(
+          alignment: Alignment.center,
+          margin: EdgeInsets.only(right: 6),
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          decoration: BoxDecoration(
+            color: AppColor.lightGray10.of(context),
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Text(
+            ideaTag.name,
+            style: TextStyle(
+                color: AppColor.gray10.of(context),
+                fontSize: 12,
+                fontWeight: FontWeight.w600),
+          )),
+    );
   }
 }

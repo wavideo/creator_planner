@@ -48,13 +48,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     return Scaffold(
       backgroundColor: AppColor.containerWhite.of(context),
       appBar: AppBar(
-        title: GestureDetector(
-            onTap: () {
-              ref
-                  .read(homePageMessageProvider.notifier)
-                  .setMessage('아이디어가 삭제되었습니다.');
-            },
-            child: Text('아이디어 보드')),
+        title: Text('아이디어 보드'),
       ),
       floatingActionButton: Consumer(
         builder: (context, ref, child) {
