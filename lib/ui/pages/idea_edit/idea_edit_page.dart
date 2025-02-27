@@ -373,15 +373,16 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
         ref.read(draftIdeaViewModelProvider).draftIdea?.targetViews !=
             widget.idea.targetViews;
 
-    bool isChangedTags = !setEquals(
-        ref.read(draftIdeaViewModelProvider).draftIdea!.tagIds.toSet(),
-        ref
-            .read(ideaViewModelProvider)
-            .ideas
-            .firstWhere((element) => element.id == widget.idea.id,
-                orElse: () => Idea(title: ''))
-            .tagIds
-            .toSet());
+    bool isChangedTags = widget.isCreated
+        ? ref.read(draftIdeaViewModelProvider).draftIdea!.tagIds.isNotEmpty
+        : !setEquals(
+            ref.read(draftIdeaViewModelProvider).draftIdea!.tagIds.toSet(),
+            ref
+                .read(ideaViewModelProvider)
+                .ideas
+                .firstWhere((element) => element.id == widget.idea.id)
+                .tagIds
+                .toSet());
 
     bool isChangedAnything =
         isChangedText || isChangedTargetViews || isChangedTags;
