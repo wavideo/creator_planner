@@ -1,13 +1,17 @@
 import 'package:collection/collection.dart';
 import 'package:creator_planner/core/config/theme/colors.dart';
-import 'package:creator_planner/data/app_view_model.dart';
+import 'package:creator_planner/data/draft_idea_view_model.dart';
+import 'package:creator_planner/data/idea_view_model.dart';
+import 'package:creator_planner/data/models/idea.dart';
 import 'package:creator_planner/data/models/idea_tag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class TagListWithGradients extends StatefulWidget {
   final String ideaId;
-  const TagListWithGradients({super.key, required this.ideaId});
+  final bool isDraft;
+  const TagListWithGradients(
+      {super.key, required this.ideaId, this.isDraft = false});
 
   @override
   State<TagListWithGradients> createState() => _TagListWithGradientsState();
@@ -36,21 +40,25 @@ class _TagListWithGradientsState extends State<TagListWithGradients> {
   Widget build(BuildContext context) {
     return Expanded(
       child: Consumer(builder: (context, ref, child) {
-        final idea = ref
-            .read(appViewModelProvider)
-            .ideas
-            .firstWhereOrNull((idea) => idea.id == widget.ideaId);
+        List<String> tagIds = widget.isDraft
+            ? ref.watch(draftIdeaViewModelProvider).draftIdea!.tagIds
+            : ref
+                .watch(ideaViewModelProvider)
+                .ideas
+                .firstWhere((idea) => idea.id == widget.ideaId)
+                .tagIds;
 
-        if (idea == null) {
-          return Center(child: Text('Idea not found'));
-        }
-
-        List<String> tagIds = idea.tagIds;
-        List<IdeaTag> ideaTags = ref
-            .watch(appViewModelProvider)
-            .ideaTags
-            .where((ideaTag) => tagIds.contains(ideaTag.id))
-            .toList();
+        List<IdeaTag> ideaTags = widget.isDraft
+            ? ref
+                .watch(draftIdeaViewModelProvider)
+                .draftIdeaTags
+                .where((ideaTag) => tagIds.contains(ideaTag.id))
+                .toList()
+            : ref
+                .watch(ideaViewModelProvider)
+                .ideaTags
+                .where((ideaTag) => tagIds.contains(ideaTag.id))
+                .toList();
 
         return Stack(children: [
           if (ideaTags.isNotEmpty)

@@ -6,25 +6,24 @@ import 'package:creator_planner/data/services/idea_tag_firestore_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
 
-class AppState {
+class IdeaState {
   final List<Idea> ideas;
   final List<IdeaTag> ideaTags;
-  final Idea? draftIdea; // 임시 상태 추가
-  AppState({required this.ideas, required this.ideaTags, this.draftIdea});
+  IdeaState({required this.ideas, required this.ideaTags});
 }
 
-class AppViewModel extends StateNotifier<AppState> {
+class IdeaViewModel extends StateNotifier<IdeaState> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   Stream<List<Idea>>? _ideasStream;
   Stream<List<IdeaTag>>? _ideaTagsStream;
 
-  AppViewModel() : super(AppState(ideas: [], ideaTags: [], draftIdea: null)) {
+  IdeaViewModel() : super(IdeaState(ideas: [], ideaTags: [])) {
     _init();
   }
 
   Future<void> _init() async {
     try {
-      state = AppState(ideas: state.ideas, ideaTags: state.ideaTags);
+      state = IdeaState(ideas: state.ideas, ideaTags: state.ideaTags);
 
       // 스트림 구독
       _ideasStream = _firestore.collection('ideas').snapshots().map((snapshot) {
@@ -58,25 +57,11 @@ class AppViewModel extends StateNotifier<AppState> {
     }
   }
 
-  void setState({List<Idea>? ideas, List<IdeaTag>? ideaTags, Idea? draftIdea}) {
-    state = AppState(
-        ideas: ideas ?? state.ideas,
-        ideaTags: ideaTags ?? state.ideaTags,
-        draftIdea: draftIdea ?? state.draftIdea);
-  }
-
-  void startDraftIdea(Idea idea) {
-    setState(draftIdea: idea);
-    Logger().d('startDraftIdea 호출됨, draftIdea: ${state.draftIdea?.id}');
-  }
-
-  void updateDraftIdea(Idea idea) {
-    if (state.draftIdea == null) return;
-    setState(draftIdea: idea);
-  }
-
-  void clearDraftIdea() {
-    setState(draftIdea: null);
+  void setState({List<Idea>? ideas, List<IdeaTag>? ideaTags}) {
+    state = IdeaState(
+      ideas: ideas ?? state.ideas,
+      ideaTags: ideaTags ?? state.ideaTags,
+    );
   }
 
   Future<void> createIdea(Idea idea) async {
@@ -131,6 +116,6 @@ class AppViewModel extends StateNotifier<AppState> {
   }
 }
 
-final appViewModelProvider = StateNotifierProvider<AppViewModel, AppState>(
-  (ref) => AppViewModel(),
+final ideaViewModelProvider = StateNotifierProvider<IdeaViewModel, IdeaState>(
+  (ref) => IdeaViewModel(),
 );

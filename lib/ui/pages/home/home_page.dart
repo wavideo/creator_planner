@@ -1,5 +1,6 @@
 import 'package:creator_planner/core/config/theme/colors.dart';
-import 'package:creator_planner/data/app_view_model.dart';
+import 'package:creator_planner/data/draft_idea_view_model.dart';
+import 'package:creator_planner/data/idea_view_model.dart';
 import 'package:creator_planner/data/message_view_model.dart';
 import 'package:creator_planner/data/models/idea.dart';
 import 'package:creator_planner/ui/pages/home/widgets/idea_card.dart';
@@ -56,7 +57,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             child: Icon(Icons.add),
             onPressed: () async {
               var idea = Idea(title: '');
-              ref.read(appViewModelProvider.notifier).startDraftIdea(idea);
+              ref.read(draftIdeaViewModelProvider.notifier).startIdea(idea);
               Navigator.push(context, MaterialPageRoute(builder: (context) {
                 return IdeaEditPage(idea: idea, isCreated: true);
               }));
@@ -78,10 +79,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                   horizontal: horizontalPadding,
                 ),
                 child: Consumer(builder: (context, ref, child) {
-                  var ideasState = ref.watch(appViewModelProvider).ideas;
+                  var ideasState = ref.watch(ideaViewModelProvider).ideas;
 
                   ref.listen<List<Idea>>(
-                    appViewModelProvider.select((viewModel) => viewModel.ideas),
+                    ideaViewModelProvider.select((viewModel) => viewModel.ideas),
                     (previous, next) {
                       if (_scrollController.hasClients) {
                         _scrollController.animateTo(

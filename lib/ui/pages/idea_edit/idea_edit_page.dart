@@ -2,7 +2,8 @@ import 'dart:math';
 
 import 'package:creator_planner/core/config/theme/colors.dart';
 import 'package:creator_planner/core/utils/format_util.dart';
-import 'package:creator_planner/data/app_view_model.dart';
+import 'package:creator_planner/data/draft_idea_view_model.dart';
+import 'package:creator_planner/data/idea_view_model.dart';
 import 'package:creator_planner/data/message_view_model.dart';
 import 'package:creator_planner/data/models/idea.dart';
 import 'package:creator_planner/data/models/idea_tag.dart';
@@ -12,12 +13,15 @@ import 'package:creator_planner/ui/pages/home/widgets/idea_card/tag_list_with_gr
 import 'package:creator_planner/ui/pages/home/widgets/idea_card/task_schedule_section.dart';
 import 'package:creator_planner/ui/pages/idea_edit/widgets/new_idea_tag_item.dart';
 import 'package:creator_planner/ui/widgets/custom_snackbar.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
 
 // DIVIDER: StatefulWidget
+final GlobalKey<_IdeaEditPageState> ideaEditPageKey =
+    GlobalKey<_IdeaEditPageState>();
 
 class IdeaEditPage extends ConsumerStatefulWidget {
   final Idea idea;
@@ -36,8 +40,12 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
   final TextEditingController _targetViewsController = TextEditingController();
   final TextEditingController _addTagController = TextEditingController();
 
+  // final ScrollController _unsellectedTagsScrollController = ScrollController();
+
   final FocusNode _titleFocusNode = FocusNode();
   final FocusNode _contentFocusNode = FocusNode();
+  final FocusNode _targetViewsfocusNode = FocusNode();
+  final FocusNode _addTagFocusNode = FocusNode();
 
   // DIVIDER: init - dispose
 
@@ -49,6 +57,7 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
     if (widget.isCreated && !_titleFocusNode.hasFocus) {
       _titleFocusNode.requestFocus();
     }
+
     Logger().d('아이디 : ${widget.idea.id}');
   }
 
@@ -60,8 +69,15 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
 
   @override
   void dispose() {
+    _titleController.dispose();
+    _contentController.dispose();
+    _addTagController.dispose();
+    _targetViewsController.dispose();
+
     _titleFocusNode.dispose();
     _contentFocusNode.dispose();
+    _targetViewsfocusNode.dispose();
+    _addTagFocusNode.dispose();
     super.dispose();
   }
 
@@ -88,236 +104,268 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
       }
     });
 
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      backgroundColor: AppColor.containerWhite.of(context),
+    return WillPopScope(
+      onWillPop: () async {
+        await _updateIdea();
+        await _updateIdeaTags();
+        ref.read(draftIdeaViewModelProvider.notifier).clear();
+        return true;
+      },
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        backgroundColor: AppColor.containerWhite.of(context),
 
-      // START: 앱바
-      appBar: AppBar(
-        title: Text('아이디어 수정'),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new),
-          onPressed: () async {
-            await _updateIdea();
-            Navigator.pop(context);
-          },
+        // START: 앱바
+        appBar: AppBar(
+          title: Text('아이디어 수정'),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_ios_new),
+            onPressed: () async {
+              await _updateIdea();
+              await _updateIdeaTags();
+              ref.read(draftIdeaViewModelProvider.notifier).clear();
+              Navigator.pop(context);
+            },
+          ),
         ),
-      ),
 
-      // END:
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          // START: 데스크탑을 위한 반응형
-          double maxContentWidth = 600.0; // 최대 가로폭 제한
-          double horizontalPadding =
-              (constraints.maxWidth - maxContentWidth) / 2;
-          horizontalPadding =
-              horizontalPadding > 0 ? horizontalPadding : 6.0; // 최소 패딩 보장
-          //END:
+        // END:
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            // START: 데스크탑을 위한 반응형
+            double maxContentWidth = 600.0; // 최대 가로폭 제한
+            double horizontalPadding =
+                (constraints.maxWidth - maxContentWidth) / 2;
+            horizontalPadding =
+                horizontalPadding > 0 ? horizontalPadding : 6.0; // 최소 패딩 보장
+            //END:
 
-          return Center(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: ListView(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            left: 20,
-                            right: 20,
-                            top: 20,
-                            bottom: 300,
-                          ),
-                          child: Column(
-                            children: [
-                              // START: 본문 영역
-                              _buildTitleTextField(),
-                              _buildContentTextField(),
-                              SizedBox(height: 50),
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                                height: 50,
-                                child: Row(
-                                  children: [
-                                    // 태그
-                                    TagListWithGradients(
-                                      ideaId:
-                                          ref
-                                              .watch(appViewModelProvider)
-                                              .draftIdea!
-                                              .id,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              //END:
-
-                              // START: 하단 분석 위젯
-                              PrototypeSection(
-                                title: '내가 정한 이름',
-                                channelName: '내 채널',
-                                targetViews: 13004,
-                              ),
-                              ResearchSection(
-                                title: '반드시 봐야하는 인터넷 꿀팁 3가지',
-                                channelName: '아정당',
-                                views: 22232200,
-                                subscribers: 1000000,
-                              ),
-                              TaskScheduleSection(),
-                              // END:
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // DIVIDER: 바텀 키보드 위젯
-                  Builder(
-                    builder: (context) {
-                      double keyboardHeight =
-                          MediaQuery.of(context).viewInsets.bottom;
-
-                      return Positioned(
-                        bottom: keyboardHeight > 0 ? keyboardHeight : 0,
-                        left: 0,
-                        right: 0,
-                        child: Container(
-                          padding: EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black26.withValues(alpha: 0.04),
-                                spreadRadius: 0,
-                                blurRadius: 10,
-                                offset: Offset(0, -10),
-                              ),
-                            ],
-                          ),
-                          height: 50,
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              SizedBox(width: 16),
-                              //START: 태그 추가버튼
-                              GestureDetector(
-                                onTap: () {
-                                  showModalBottomSheet(
-                                    context: context,
-                                    enableDrag: true,
-                                    isScrollControlled: true,
-                                    builder: (BuildContext context) {
-                                      return Padding(
-                                        padding: EdgeInsets.only(
-                                          bottom:
-                                              MediaQuery.of(
-                                                context,
-                                              ).viewInsets.bottom,
-                                        ),
-                                        child: _buildAddTagBottomSheet(),
-                                      );
-                                    },
-                                  ).whenComplete(() {
-                                    updateTargetViews();
-                                  });
-                                },
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.new_label,
-                                      size: 24,
-                                      color: AppColor.gray10.of(context),
-                                    ),
-                                    SizedBox(width: 4),
-                                    Text(
-                                      '태그 추가',
-                                      style: TextStyle(
-                                        color: AppColor.gray10.of(context),
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              //END:
-                              Spacer(),
-
-                              //START: 목표 추가 버튼
-                              GestureDetector(
-                                onTap: () {
-                                  showModalBottomSheet(
-                                    context: context,
-                                    enableDrag: true,
-                                    isScrollControlled: true,
-                                    builder: (BuildContext context) {
-                                      return Padding(
-                                        padding: EdgeInsets.only(
-                                          bottom:
-                                              MediaQuery.of(
-                                                context,
-                                              ).viewInsets.bottom,
-                                        ),
-                                        child: _buildTargetViewsBottomSheet(),
-                                      );
-                                    },
-                                  ).whenComplete(() {
-                                    updateTargetViews();
-                                  });
-                                  ;
-                                },
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.flag,
-                                      size: 20,
-                                      color: AppColor.primaryBlue.of(context),
-                                    ),
-                                    SizedBox(width: 4),
-                                    Consumer(
-                                      builder: (context, ref, child) {
-                                        Idea idea =
+            return Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: ListView(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              left: 20,
+                              right: 20,
+                              top: 20,
+                              bottom: 300,
+                            ),
+                            child: Column(
+                              children: [
+                                // START: 본문 영역
+                                _buildTitleTextField(),
+                                _buildContentTextField(),
+                                SizedBox(height: 50),
+                                Container(
+                                  padding: EdgeInsets.symmetric(vertical: 10),
+                                  height: 50,
+                                  child: Row(
+                                    children: [
+                                      // 태그
+                                      TagListWithGradients(
+                                        ideaId:
                                             ref
-                                                .watch(appViewModelProvider)
-                                                .draftIdea!;
-                                        return Text(
-                                          idea.targetViews == null
-                                              ? '목표 추가'
-                                              : '목표 : ${formatCompactNumber(idea.targetViews!)}뷰',
-                                          style: TextStyle(
-                                            color: AppColor.primaryBlue.of(
-                                              context,
-                                            ),
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600,
+                                                .watch(
+                                                  draftIdeaViewModelProvider,
+                                                )
+                                                .draftIdea!
+                                                .id,
+                                        isDraft: true,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                //END:
+
+                                // START: 하단 분석 위젯
+                                PrototypeSection(
+                                  title: '내가 정한 이름',
+                                  channelName: '내 채널',
+                                  targetViews: 13004,
+                                ),
+                                ResearchSection(
+                                  title: '반드시 봐야하는 인터넷 꿀팁 3가지',
+                                  channelName: '아정당',
+                                  views: 22232200,
+                                  subscribers: 1000000,
+                                ),
+                                TaskScheduleSection(),
+                                // END:
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // DIVIDER: 바텀 키보드 위젯
+                    Builder(
+                      builder: (context) {
+                        double keyboardHeight =
+                            MediaQuery.of(context).viewInsets.bottom;
+
+                        return Positioned(
+                          bottom: keyboardHeight > 0 ? keyboardHeight : 0,
+                          left: 0,
+                          right: 0,
+                          child: Container(
+                            padding: EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black26.withValues(alpha: 0.04),
+                                  spreadRadius: 0,
+                                  blurRadius: 10,
+                                  offset: Offset(0, -10),
+                                ),
+                              ],
+                            ),
+                            height: 50,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                SizedBox(width: 16),
+                                //START: 태그 추가버튼
+                                GestureDetector(
+                                  onTap: () {
+                                    showModalBottomSheet(
+                                      context: context,
+                                      enableDrag: true,
+                                      isScrollControlled: true,
+                                      builder: (BuildContext context) {
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((_) {
+                                              FocusScope.of(
+                                                context,
+                                              ).requestFocus(_addTagFocusNode);
+                                            });
+
+                                        return Padding(
+                                          padding: EdgeInsets.only(
+                                            bottom:
+                                                MediaQuery.of(
+                                                  context,
+                                                ).viewInsets.bottom,
                                           ),
+                                          child: _buildAddTagBottomSheet(),
                                         );
                                       },
-                                    ),
-                                  ],
+                                    ).whenComplete(() {
+                                      _addTagController.clear();
+                                    });
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.new_label,
+                                        size: 24,
+                                        color: AppColor.gray10.of(context),
+                                      ),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        '태그 추가',
+                                        style: TextStyle(
+                                          color: AppColor.gray10.of(context),
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              // END:
-                              SizedBox(width: 20),
-                            ],
+                                //END:
+                                Spacer(),
+
+                                //START: 목표 추가 버튼
+                                GestureDetector(
+                                  onTap: () {
+                                    showModalBottomSheet(
+                                      context: context,
+                                      enableDrag: true,
+                                      isScrollControlled: true,
+                                      builder: (BuildContext context) {
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((_) {
+                                              FocusScope.of(
+                                                context,
+                                              ).requestFocus(
+                                                _targetViewsfocusNode,
+                                              );
+                                            });
+
+                                        return Padding(
+                                          padding: EdgeInsets.only(
+                                            bottom:
+                                                MediaQuery.of(
+                                                  context,
+                                                ).viewInsets.bottom,
+                                          ),
+                                          child: _buildTargetViewsBottomSheet(),
+                                        );
+                                      },
+                                    ).whenComplete(() {
+                                      updateTargetViews();
+                                    });
+                                    ;
+                                  },
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.flag,
+                                        size: 20,
+                                        color: AppColor.primaryBlue.of(context),
+                                      ),
+                                      SizedBox(width: 4),
+                                      Builder(
+                                        builder: (context) {
+                                          Idea idea =
+                                              ref
+                                                  .watch(
+                                                    draftIdeaViewModelProvider,
+                                                  )
+                                                  .draftIdea!;
+                                          return Text(
+                                            idea.targetViews == null
+                                                ? '목표 추가'
+                                                : '목표 : ${formatCompactNumber(idea.targetViews!)}뷰',
+                                            style: TextStyle(
+                                              color: AppColor.primaryBlue.of(
+                                                context,
+                                              ),
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                // END:
+                                SizedBox(width: 20),
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
+        bottomNavigationBar: Container(height: 30),
       ),
-      bottomNavigationBar: Container(height: 30),
     );
   }
 
@@ -325,31 +373,50 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
   // DIVIDER: 데이터 업데이트
 
   Future<void> _updateIdea() async {
-    bool isEmpty =
+    bool isEmptyText =
         _titleController.text.isEmpty && _contentController.text.isEmpty;
-    bool isChanged =
+    bool isChangedText =
         (_titleController.text != widget.idea.title ||
-            _contentController.text != (widget.idea.content ?? "") ||
-            ref.read(appViewModelProvider).draftIdea?.targetViews !=
-                widget.idea.targetViews);
+            _contentController.text != (widget.idea.content ?? ""));
+
+    bool isChangedTargetViews =
+        ref.read(draftIdeaViewModelProvider).draftIdea?.targetViews !=
+        widget.idea.targetViews;
+
+    // bool isChangedTags =
+    //     widget.idea.tagIds !=
+    //     ref.read(draftIdeaViewModelProvider).draftIdea!.tagIds;
+
+    // bool isChangedTags = !setEquals(
+    //     ref.read(draftIdeaViewModelProvider).draftIdea!.tagIds.toSet(),
+    //     await ref
+    //         .read(ideaViewModelProvider)
+    //         .ideas
+    //         .firstWhere((element) => element.id == widget.idea.id)
+    //         .tagIds
+    //         .toSet());
+
+    bool isChangedAnything =
+        isChangedText || isChangedTargetViews;
+        //  || isChangedTags;
 
     // 내용이 없어서 삭제
-    if (!widget.isCreated && isEmpty) {
+    if (!widget.isCreated && isEmptyText) {
       ref.read(homePageMessageProvider.notifier).setMessage('아이디어가 삭제되었습니다.');
-      if (!mounted) return;
-      await ref.read(appViewModelProvider.notifier).deleteIdea(widget.idea);
-      ref.read(appViewModelProvider.notifier).clearDraftIdea();
+      await ref.read(ideaViewModelProvider.notifier).deleteIdea(widget.idea);
+      Logger().d('내용없어서 삭제');
       return;
     }
 
     // 단순 열람
-    if ((widget.isCreated && isEmpty) || !isChanged) {
-      ref.read(appViewModelProvider.notifier).clearDraftIdea();
+    if ((widget.isCreated && isEmptyText) || !isChangedAnything) {
+      Logger().d('단순 열람');
+
       return;
     }
 
     // 업데이트할 아이디어 준비
-    var idea = ref.read(appViewModelProvider).draftIdea;
+    var idea = ref.read(draftIdeaViewModelProvider).draftIdea;
     var updatedIdea = idea?.copyWith(
       title:
           (_titleController.text.isEmpty && _contentController.text.isNotEmpty)
@@ -359,17 +426,43 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
               )
               : _titleController.text,
       content: _contentController.text,
+      // tagIds: ref.read(draftIdeaViewModelProvider).draftIdea!.tagIds,
     );
+    Logger().d('업데이트할 아이디어 준비');
 
     // 생성 또는 수정
     if (widget.isCreated) {
       ref.read(homePageMessageProvider.notifier).setMessage('새로운 아이디어를 저장했습니다');
-      await ref.read(appViewModelProvider.notifier).createIdea(updatedIdea!);
-      ref.read(appViewModelProvider.notifier).clearDraftIdea();
+      await ref.read(ideaViewModelProvider.notifier).createIdea(updatedIdea!);
+      Logger().d('신규 생성');
     } else {
       ref.read(homePageMessageProvider.notifier).setMessage('아이디어를 수정했습니다.');
-      await ref.read(appViewModelProvider.notifier).updateIdea(updatedIdea!);
-      ref.read(appViewModelProvider.notifier).clearDraftIdea();
+      await ref.read(ideaViewModelProvider.notifier).updateIdea(updatedIdea!);
+      Logger().d('아이디어 수정');
+    }
+  }
+
+  Future<void> _updateIdeaTags() async {
+    var originTags = ref.read(ideaViewModelProvider).ideaTags;
+    var draftTags = ref.read(draftIdeaViewModelProvider).draftIdeaTags;
+
+    var originTagIds = originTags.map((tag) => tag.id).toSet();
+    var draftTagIds = draftTags.map((tag) => tag.id).toSet();
+
+    var deletedTags =
+        originTags.where((tag) => !draftTagIds.contains(tag.id)).toList();
+    var addedTags =
+        draftTags.where((tag) => !originTagIds.contains(tag.id)).toList();
+
+    if (deletedTags.isNotEmpty) {
+      deletedTags.forEach(
+        (tag) => ref.read(ideaViewModelProvider.notifier).deleteIdeaTag(tag),
+      );
+    }
+    if (addedTags.isNotEmpty) {
+      addedTags.forEach(
+        (tag) => ref.read(ideaViewModelProvider.notifier).createIdeaTag(tag),
+      );
     }
   }
 
@@ -378,186 +471,274 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
   Widget _buildAddTagBottomSheet() {
     return Container(
       // height: double.infinity,
-      height: 800,
+      // height: 800,
       padding: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 40),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              '태그',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 30),
-            Row(
-              children: [
-                Text(
-                  '태그 추천',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppColor.gray10.of(context),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: Wrap(
-                    spacing: 10,
-                    runSpacing: 20,
-                    alignment: WrapAlignment.start,
-                    crossAxisAlignment: WrapCrossAlignment.center,
+      child: Consumer(
+        builder: (context, ref, _) {
+          // 등록된 tag id 목록
+          List<String> ideaTagIds =
+              ref.watch(draftIdeaViewModelProvider).draftIdea!.tagIds;
+          // 미선택 tag 아이템 리스트
+          List<IdeaTag> unselectedTags =
+              ref
+                  .watch(draftIdeaViewModelProvider)
+                  .draftIdeaTags
+                  .where((element) => !ideaTagIds.contains(element.id))
+                  .toList();
 
-                    children: [
-                      AddIdeaTagItem(ideaTag: IdeaTag(name: '반갑습니다')),
-                      AddIdeaTagItem(ideaTag: IdeaTag(name: '오늘')),
-                      AddIdeaTagItem(ideaTag: IdeaTag(name: '이왜진')),
-                      AddIdeaTagItem(ideaTag: IdeaTag(name: '그')),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 30),
-            Divider(),
-            SizedBox(height: 30),
-            Row(
-              children: [
-                Text(
-                  '태그 입력',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppColor.gray10.of(context),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 30),
-            Row(
-              children: [
-                Expanded(
-                  child: StatefulBuilder(
-                    builder: (context, setState) {
-                      return Wrap(
-                        spacing: 10,
-                        runSpacing: 20,
-                        alignment: WrapAlignment.start,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-
-                        children: [
-                          // NewIdeaTagItem(ideaTag: IdeaTag(name: '반갑습니다')),
-                          // NewIdeaTagItem(ideaTag: IdeaTag(name: '오늘')),
-                          // NewIdeaTagItem(ideaTag: IdeaTag(name: '이왜진')),
-                          // NewIdeaTagItem(ideaTag: IdeaTag(name: '그')),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
+          // 선택한 tag 아이템 리스트
+          List<IdeaTag> selectedTags =
+              ref
+                  .watch(draftIdeaViewModelProvider)
+                  .draftIdeaTags
+                  .where((element) => ideaTagIds.contains(element.id))
+                  .toList();
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Icon(Icons.add),
-                              SizedBox(width: 5),
-                              Flexible(
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: LayoutBuilder(
-                                    builder: (context, constraints) {
-                                      double _calculateWidth(String text) {
-                                        final textPainter = TextPainter(
-                                          text: TextSpan(
-                                            // text: text,
-                                            text: text.isEmpty ? '새로 입력' : text,
-                                            style: TextStyle(fontSize: 17),
-                                          ),
-                                          textDirection: TextDirection.ltr,
-                                        )..layout();
-
-                                        return textPainter.width +
-                                            30; // +20은 padding을 위한 여유 공간
-                                      }
-
-                                      double width = _calculateWidth(
-                                        _addTagController.text,
-                                      );
-                                      return Container(
-                                        constraints: BoxConstraints(
-                                          maxWidth: constraints.maxWidth,
-                                        ),
-                                        width: width,
-                                        alignment: Alignment.center,
-                                        child: TextField(
-                                          controller: _addTagController,
-                                          scrollPhysics:
-                                              BouncingScrollPhysics(),
-                                          // maxLength: 20,
-                                          style: TextStyle(fontSize: 16),
-                                          textAlign: TextAlign.start,
-                                          decoration: InputDecoration(
-                                            border: InputBorder.none,
-                                            counterText: '',
-                                            hintText: '새로 입력',
-                                          ),
-                                          onEditingComplete: () {
-                                            _addTagController.clear();
-                                          },
-                                          onChanged: (value) {
-                                            setState(() {
-                                              if (_addTagController.text
-                                                  .contains(' ')) {
-                                                _addTagController.clear();
-                                              }
-                                            });
-                                          },
-                                        ),
-                                      );
-                                    },
-                                  ),
+                              Text(
+                                '태그',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
                                 ),
+                                textAlign: TextAlign.center,
                               ),
                             ],
                           ),
-                        ],
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 12,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      elevation: 4,
+                        ),
+                        Positioned(
+                          right: 0,
+                          top: 0,
+                          bottom: 0,
+                          child: IconButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            icon: Icon(Icons.close),
+                          ),
+                        ),
+                      ],
                     ),
-                    child: Text(
-                      "확인",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    SizedBox(height: 30),
+                    Row(
+                      children: [
+                        Builder(
+                          builder: (context) {
+                            return Text(
+                              '목록 (${ref.watch(draftIdeaViewModelProvider).draftIdeaTags.length}개)',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: AppColor.gray10.of(context),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
                     ),
-                  ),
+                    SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: SizedBox(
+                            height: 140,
+                            child: SingleChildScrollView(
+                              child: Wrap(
+                                spacing: 10,
+                                runSpacing: 20,
+                                alignment: WrapAlignment.start,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: List.generate(
+                                  unselectedTags.length,
+                                  (index) => AddIdeaTagItem(
+                                    ideaTag: unselectedTags[index],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 30),
+                    // Divider(),
+                    SizedBox(height: 30),
+                    Row(
+                      children: [
+                        Text(
+                          '태그 입력',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: AppColor.gray10.of(context),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 30),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Wrap(
+                            spacing: 10,
+                            runSpacing: 20,
+                            alignment: WrapAlignment.start,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              ...List.generate(
+                                selectedTags.length,
+                                (index) => NewIdeaTagItem(
+                                  ideaTag: selectedTags[index],
+                                ),
+                              ),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.add),
+                                  SizedBox(width: 5),
+                                  Flexible(
+                                    child: SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      child: LayoutBuilder(
+                                        builder: (context, constraints) {
+                                          double _calculateWidth(String text) {
+                                            final textPainter = TextPainter(
+                                              text: TextSpan(
+                                                text:
+                                                    text.isEmpty
+                                                        ? '새로 입력'
+                                                        : text,
+                                                style: TextStyle(fontSize: 17),
+                                              ),
+                                              textDirection: TextDirection.ltr,
+                                            )..layout();
+
+                                            return textPainter.width +
+                                                30; // +20은 padding을 위한 여유 공간
+                                          }
+
+                                          double width = _calculateWidth(
+                                            _addTagController.text,
+                                          );
+                                          return Container(
+                                            constraints: BoxConstraints(
+                                              maxWidth: constraints.maxWidth,
+                                            ),
+                                            width: width,
+                                            alignment: Alignment.center,
+                                            child: TextField(
+                                              controller: _addTagController,
+                                              focusNode: _addTagFocusNode,
+                                              scrollPhysics:
+                                                  BouncingScrollPhysics(),
+                                              maxLength: 20,
+                                              style: TextStyle(fontSize: 16),
+                                              textAlign: TextAlign.start,
+                                              decoration: InputDecoration(
+                                                border: InputBorder.none,
+                                                counterText: '',
+                                                hintText: '새로 입력',
+                                              ),
+                                              onEditingComplete: () {
+                                                createTagAndUpdateTagList();
+                                                setState(() {
+                                                  _addTagController;
+                                                });
+                                              },
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  _addTagController;
+                                                  if (_addTagController.text
+                                                      .contains(' ')) {
+                                                    createTagAndUpdateTagList();
+                                                    setState(() {
+                                                      _addTagController;
+                                                    });
+                                                  }
+                                                });
+                                              },
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Builder(
+                            builder: (context) {
+                              return ElevatedButton(
+                                onPressed: () {
+                                  if (_addTagController.text.isNotEmpty) {
+                                    createTagAndUpdateTagList();
+                                    setState(() {
+                                      _addTagController;
+                                    });
+                                  } else {
+                                    if (createTagAndUpdateTagList()) {
+                                      setState(() {
+                                        _addTagController;
+                                      });
+                                      Navigator.pop(context);
+                                    }
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      _addTagController.text.isEmpty
+                                          ? Colors.grey
+                                          : Colors.blue,
+                                  foregroundColor: Colors.white,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  elevation: 4,
+                                ),
+                                child: Text(
+                                  _addTagController.text.isEmpty ? "닫기" : "추가",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ],
-        ),
+              );
+            },
+          );
+        },
       ),
     );
   }
@@ -573,18 +754,49 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
     }
 
     return Consumer(
-      builder: (context, ref, child) {
-        Idea idea = ref.watch(appViewModelProvider).draftIdea!;
+      builder: (context, ref, _) {
+        Idea idea = ref.watch(draftIdeaViewModelProvider).draftIdea!;
+
         return Container(
-          padding: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 40),
+          padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 40),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                '목표 조회수',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                textAlign: TextAlign.center,
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          '목표 조회수',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    bottom: 0,
+                    child: IconButton(
+                      onPressed: () {
+                        if (updateTargetViews()) {
+                          Navigator.pop(context);
+                        }
+                      },
+                      icon: Icon(Icons.close),
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: 30),
               Row(
@@ -600,6 +812,7 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
                     width: 200,
                     child: TextField(
                       controller: _targetViewsController,
+                      focusNode: _targetViewsfocusNode,
                       maxLength: 7,
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -608,9 +821,12 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
                       decoration: InputDecoration(
                         border: InputBorder.none,
                         counterText: '',
-                        hintText: formatCompactNumber(
-                          idea.targetViews ?? 10000,
-                        ),
+                        hintText:
+                            idea.targetViews == null
+                                ? ''
+                                : formatCompactNumber(
+                                  idea.targetViews ?? 10000,
+                                ),
                       ),
                       onChanged: (value) {
                         String format(value) {
@@ -799,8 +1015,8 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
                               onChanged: (value) {
                                 _targetViewsController.clear();
                                 ref
-                                    .read(appViewModelProvider.notifier)
-                                    .updateDraftIdea(
+                                    .read(draftIdeaViewModelProvider.notifier)
+                                    .updateIdea(
                                       idea.copyWith(
                                         targetViews:
                                             reverseLogScale(value).toInt(),
@@ -816,38 +1032,6 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
                 ),
               ),
               SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (updateTargetViews()) {
-                          Navigator.pop(context);
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue, // 기본 배경색
-                        foregroundColor: Colors.white, // 글자 색상
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
-                        ), // 버튼 패딩
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8), // 살짝 둥근 모서리
-                        ),
-                        elevation: 4, // 그림자 효과
-                      ),
-                      child: Text(
-                        "확인", // 버튼 텍스트
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
             ],
           ),
         );
@@ -909,6 +1093,69 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
     );
   }
 
+  bool createTagAndUpdateTagList({String? id}) {
+    var ideaTags = ref.watch(draftIdeaViewModelProvider).draftIdeaTags;
+    var selectedIds = ref.watch(draftIdeaViewModelProvider).draftIdea!.tagIds;
+
+    String selectedId;
+
+    if (id == null) {
+      // 입력한 공백 text 예외처리
+      if (_addTagController.text.trim().isEmpty) {
+        _addTagController.clear();
+        return true;
+      }
+
+      if (selectedIds.length > 4) {
+        ref
+            .read(IdeaEditPageMessageProvider.notifier)
+            .setMessage('태그는 5개까지 추가할 수 있습니다');
+        return false;
+      }
+
+      // 입력한 text가 이미 정의된 tag인 경우 -> 선택
+      if (ideaTags.map((tag) => tag.name).contains(_addTagController.text)) {
+        selectedId =
+            ideaTags.firstWhere((tag) => tag.name == _addTagController.text).id;
+        // 입력한 text가 이미 선택된 tag인 경우 -> 취소
+        if (selectedIds.contains(selectedId)) {
+          ref
+              .read(IdeaEditPageMessageProvider.notifier)
+              .setMessage('이미 선택된 태그입니다');
+          return false;
+        }
+      }
+      // 입력한 text를 새로운 tag로 등록하는 경우 -> 신규 등록 + 선택
+      else {
+        IdeaTag newTag = IdeaTag(name: _addTagController.text);
+        ref.read(draftIdeaViewModelProvider.notifier).createIdeaTag(newTag);
+        selectedId = newTag.id;
+      }
+    }
+    // 기존에 있던 tag를 선택한 경우 -> 선택
+    else {
+      if (selectedIds.length > 4) {
+        ref
+            .read(IdeaEditPageMessageProvider.notifier)
+            .setMessage('태그는 5개까지 추가할 수 있습니다');
+        return false;
+      }
+
+      selectedId = id;
+    }
+
+    _addTagController.clear();
+
+    // 선택한 아이디 추가
+    selectedIds.add(selectedId);
+    var updatedIdea = ref
+        .read(draftIdeaViewModelProvider)
+        .draftIdea!
+        .copyWith(tagIds: selectedIds);
+    ref.read(draftIdeaViewModelProvider.notifier).updateIdea(updatedIdea);
+    return true;
+  }
+
   bool updateTargetViews() {
     // Slider만 조절했을 경우
     if (_targetViewsController.text.isEmpty) {
@@ -933,10 +1180,10 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
     // TextField 값 저장
     else {
       ref
-          .read(appViewModelProvider.notifier)
-          .updateDraftIdea(
+          .read(draftIdeaViewModelProvider.notifier)
+          .updateIdea(
             ref
-                .read(appViewModelProvider)
+                .read(draftIdeaViewModelProvider)
                 .draftIdea!
                 .copyWith(targetViews: value),
           );

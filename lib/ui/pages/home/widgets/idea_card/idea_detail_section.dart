@@ -1,6 +1,6 @@
 import 'package:creator_planner/core/config/theme/colors.dart';
 import 'package:creator_planner/core/utils/format_util.dart';
-import 'package:creator_planner/data/app_view_model.dart';
+import 'package:creator_planner/data/idea_view_model.dart';
 import 'package:creator_planner/data/models/idea.dart';
 import 'package:creator_planner/ui/pages/home/widgets/idea_card/tag_list_with_gradients.dart';
 import 'package:flutter/material.dart';
@@ -56,7 +56,7 @@ class _IdeaDetailSectionState extends State<IdeaDetailSection> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    TagListWithGradients(ideaId: widget.idea.id),
+                    TagListWithGradients(ideaId: widget.idea.id, isDraft: false),
                     SizedBox(width: 30),
                     if (widget.idea.targetViews != null)
                       groupTargetViews(context, targetViews: widget.idea.targetViews!),
