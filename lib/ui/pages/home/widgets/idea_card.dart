@@ -37,9 +37,7 @@ class IdeaCard extends StatelessWidget {
               context,
               MaterialPageRoute(
                   builder: (context) =>
-                      IdeaEditPage(
-                        key: ideaEditPageKey, 
-                      idea: idea)));
+                      IdeaEditPage(key: ideaEditPageKey, idea: idea)));
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0),
