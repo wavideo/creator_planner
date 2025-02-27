@@ -117,7 +117,6 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
 
         // START: 앱바
         appBar: AppBar(
-          title: Text('아이디어 수정'),
           leading: IconButton(
             icon: Icon(Icons.arrow_back_ios_new),
             onPressed: () async {
@@ -374,21 +373,17 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
         ref.read(draftIdeaViewModelProvider).draftIdea?.targetViews !=
             widget.idea.targetViews;
 
-    bool isChangedTags =
-        ref.read(draftIdeaViewModelProvider).draftIdea!.tagIds.isNotEmpty;
-
-    // bool isChangedTags = setEquals(
-    //     ref.read(draftIdeaViewModelProvider).draftIdea!.tagIds.toSet(),
-    //     ref
-    //         .read(ideaViewModelProvider)
-    //         .ideas
-    //         .firstWhere((element) => element.id == widget.idea.id)
-    //         .tagIds
-    //         .toSet());
+    bool isChangedTags = !setEquals(
+        ref.read(draftIdeaViewModelProvider).draftIdea!.tagIds.toSet(),
+        ref
+            .read(ideaViewModelProvider)
+            .ideas
+            .firstWhere((element) => element.id == widget.idea.id)
+            .tagIds
+            .toSet());
 
     bool isChangedAnything =
         isChangedText || isChangedTargetViews || isChangedTags;
-    // ;
 
     // 내용이 없어서 삭제
     if (!widget.isCreated && isEmptyText) {
@@ -405,19 +400,29 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
       return;
     }
 
+    List<String> allTagIds = ref
+        .read(draftIdeaViewModelProvider)
+        .draftIdeaTags
+        .map((tag) => tag.id)
+        .toList();
+
+    List<String> sellectedTagIds =
+        ref.read(draftIdeaViewModelProvider).draftIdea!.tagIds;
+
+    List<String> fixedSellectedTagIds =
+        sellectedTagIds.toSet().intersection(allTagIds.toSet()).toList();
+
     // 업데이트할 아이디어 준비
-    var idea = ref.read(draftIdeaViewModelProvider).draftIdea;
-    var updatedIdea = idea?.copyWith(
-      title:
-          (_titleController.text.isEmpty && _contentController.text.isNotEmpty)
-              ? _contentController.text.substring(
-                  0,
-                  min(40, _contentController.text.length),
-                )
-              : _titleController.text,
-      content: _contentController.text,
-      // tagIds: ref.read(draftIdeaViewModelProvider).draftIdea!.tagIds,
-    );
+    var updatedIdea = ref.read(draftIdeaViewModelProvider).draftIdea?.copyWith(
+        title: (_titleController.text.isEmpty &&
+                _contentController.text.isNotEmpty)
+            ? _contentController.text.substring(
+                0,
+                min(40, _contentController.text.length),
+              )
+            : _titleController.text,
+        content: _contentController.text,
+        tagIds: fixedSellectedTagIds);
     Logger().d('업데이트할 아이디어 준비');
 
     // 생성 또는 수정
@@ -557,10 +562,9 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              // setState(() {});
-
-                              _addTagFocusNode
-                                  .requestFocus(); // ✅ 프레임 렌더링 후 포커스 요청
+                              setState(() {
+                                _addTagFocusNode.requestFocus();
+                              });
                             },
                             child: Row(children: [
                               Icon(Icons.keyboard_arrow_down,
@@ -882,6 +886,7 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
                       child: TextField(
                         controller: _targetViewsController,
                         focusNode: _targetViewsfocusNode,
+                        autofillHints: null,
                         maxLength: 7,
                         keyboardType: TextInputType.number,
                         inputFormatters: [
@@ -907,7 +912,11 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
                           }
 
                           if (value != format(value)) {
-                            _targetViewsController.text = format(value);
+                            _targetViewsController.value = TextEditingValue(
+                              text: format(value),
+                              selection: TextSelection.collapsed(
+                                  offset: format(value).length),
+                            );
                           }
                         },
                       ),

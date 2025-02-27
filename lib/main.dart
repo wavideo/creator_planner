@@ -13,7 +13,6 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await initializeDateFormatting('ko');
-  await Firebase.initializeApp();
   runApp(ProviderScope(child: MyApp()));
 }
 
@@ -24,6 +23,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      // home: AuthPage(),
       home: HomePage(),
       theme: lightTheme.copyWith(
         extensions: [AppColors.lightColorScheme],

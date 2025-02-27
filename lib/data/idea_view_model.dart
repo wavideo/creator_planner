@@ -73,7 +73,9 @@ class IdeaViewModel extends StateNotifier<IdeaState> {
 
   Future<void> updateIdea(Idea idea) async {
     Idea currentIdea = state.ideas.firstWhere((item) => item.id == idea.id);
-    if (currentIdea == idea) return;
+    // if (currentIdea == idea) return;
+    Logger().d('#뷰모델저장 currentIdea : $currentIdea');
+    Logger().d('#뷰모델저장 idea : $idea');
 
     idea = idea.copyWith(updatedAt: DateTime.now());
     List<Idea> ideas =

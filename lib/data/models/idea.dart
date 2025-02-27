@@ -57,16 +57,24 @@ class Idea implements BaseModel<Idea> {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       title: title ?? this.title,
-      content: content == null
-          ? this.content
-          : content.isEmpty
-              ? null
-              : content,
-      tagIds: tagIds ?? this.tagIds,
+      content: content != null
+          ? content.isNotEmpty
+              ? content
+              : null
+          : this.content,
+      tagIds: tagIds != null
+          ? List<String>.from(tagIds)
+          : List<String>.from(this.tagIds),
       targetViews: targetViews ?? this.targetViews,
-      prototypeIds: prototypeIds ?? this.prototypeIds,
-      researchIds: researchIds ?? this.researchIds,
-      taskScheduleIds: taskScheduleIds ?? this.taskScheduleIds,
+      prototypeIds: prototypeIds != null
+          ? List<String>.from(prototypeIds)
+          : List<String>.from(this.prototypeIds),
+      researchIds: researchIds != null
+          ? List<String>.from(researchIds)
+          : List<String>.from(this.researchIds),
+      taskScheduleIds: taskScheduleIds != null
+          ? List<String>.from(taskScheduleIds)
+          : List<String>.from(this.taskScheduleIds),
     );
   }
 

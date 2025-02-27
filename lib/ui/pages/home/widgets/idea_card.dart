@@ -28,9 +28,12 @@ class IdeaCard extends StatelessWidget {
     return Consumer(builder: (context, ref, child) {
       return GestureDetector(
         onTap: () {
-          ref.read(draftIdeaViewModelProvider.notifier).startIdea(idea);
+          ref
+              .read(draftIdeaViewModelProvider.notifier)
+              .startIdea(idea.copyWith());
 
-          List<IdeaTag> ideaTags = ref.read(ideaViewModelProvider).ideaTags;
+          List<IdeaTag> ideaTags =
+              ref.read(ideaViewModelProvider).ideaTags.toList();
           ref.read(draftIdeaViewModelProvider.notifier).startIdeaTag(ideaTags);
 
           Navigator.push(
