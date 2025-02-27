@@ -1,10 +1,12 @@
 import 'package:creator_planner/core/config/theme/colors.dart';
 import 'package:creator_planner/data/draft_idea_view_model.dart';
+import 'package:creator_planner/data/idea_view_model.dart';
 import 'package:creator_planner/data/models/idea.dart';
 import 'package:creator_planner/data/models/idea_tag.dart';
 import 'package:creator_planner/ui/pages/idea_edit/idea_edit_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logger/logger.dart';
 
 class NewIdeaTagItem extends StatelessWidget {
   final IdeaTag ideaTag;
@@ -36,6 +38,7 @@ class NewIdeaTagItem extends StatelessWidget {
                 ),
                 GestureDetector(
                   onTap: () {
+                    // sellected idea에서 제외
                     List<String> tagIds =
                         ref.read(draftIdeaViewModelProvider).draftIdea!.tagIds;
                     tagIds.removeWhere((id) => id == ideaTag.id);
@@ -46,6 +49,18 @@ class NewIdeaTagItem extends StatelessWidget {
                     ref
                         .read(draftIdeaViewModelProvider.notifier)
                         .updateIdea(updatedIdea);
+
+                    // 기존 태그에 없던 신규 tag 폐기
+                    List<IdeaTag> originIdeaTags =
+                        ref.read(ideaViewModelProvider).ideaTags;
+                    List<IdeaTag> sameTags = originIdeaTags
+                        .where((tag) => tag.id == ideaTag.id)
+                        .toList();
+                    if (sameTags.isEmpty) {
+                      ref
+                          .read(draftIdeaViewModelProvider.notifier)
+                          .deleteIdeaTag(ideaTag);
+                    }
                   },
                   child: Padding(
                     padding: const EdgeInsets.only(

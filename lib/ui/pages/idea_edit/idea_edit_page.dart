@@ -550,14 +550,17 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
                           ),
                       ],
                     ),
-                    if (!_addTagFocusNode.hasFocus && unselectedTags.isNotEmpty)
-                      Column(
+                    Offstage(
+                      offstage:
+                          _addTagFocusNode.hasFocus || unselectedTags.isEmpty,
+                      child: Column(
                         children: [
                           GestureDetector(
                             onTap: () {
-                              setState(() {
-                                _addTagFocusNode.requestFocus();
-                              });
+                              // setState(() {});
+
+                              _addTagFocusNode
+                                  .requestFocus(); // ✅ 프레임 렌더링 후 포커스 요청
                             },
                             child: Row(children: [
                               Icon(Icons.keyboard_arrow_down,
@@ -598,20 +601,24 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
                             ],
                           ),
                           SizedBox(height: 30),
-                          Row(
-                            children: [
-                              Text(
-                                '선택한 태그',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColor.gray10.of(context),
+                          Offstage(
+                            offstage: selectedTags.isEmpty,
+                            child: Row(
+                              children: [
+                                Text(
+                                  '선택한 태그',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColor.gray10.of(context),
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ],
                       ),
+                    ),
                     SizedBox(height: 30),
                     Row(
                       children: [
@@ -630,7 +637,9 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
                               ),
                               GestureDetector(
                                 onTap: () {
-                                  _addTagFocusNode.requestFocus();
+                                  // setState(() {});
+                                  _addTagFocusNode
+                                      .requestFocus(); // ✅ 프레임 렌더링 후 포커스 요청
                                 },
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -723,9 +732,10 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
                       ],
                     ),
                     SizedBox(height: 20),
-                    if (_addTagController.text.isNotEmpty ||
-                        _addTagFocusNode.hasFocus)
-                      Row(
+                    Offstage(
+                      offstage: _addTagController.text.isEmpty &&
+                          !_addTagFocusNode.hasFocus,
+                      child: Row(
                         children: [
                           Expanded(
                               child: ElevatedButton(
@@ -768,6 +778,7 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
                           )),
                         ],
                       ),
+                    ),
                   ],
                 ),
               );
