@@ -73,7 +73,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   .read(draftIdeaViewModelProvider.notifier)
                   .startIdeaTag(ideaTags);
               Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return IdeaEditPage(idea: idea, isCreated: true);
+                return IdeaEditPage(key: ideaEditPageKey, idea: idea, isCreated: true);
               }));
             },
           );

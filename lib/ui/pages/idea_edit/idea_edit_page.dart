@@ -378,7 +378,8 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
         ref
             .read(ideaViewModelProvider)
             .ideas
-            .firstWhere((element) => element.id == widget.idea.id)
+            .firstWhere((element) => element.id == widget.idea.id,
+                orElse: () => Idea(title: ''))
             .tagIds
             .toSet());
 
