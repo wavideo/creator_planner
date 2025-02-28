@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
-import 'package:creator_planner/data/models/interfaces/base_model.dart';
+import 'package:creator_planner/data/interfaces/base_model.dart';
 import 'package:uuid/uuid.dart';
 
 class Idea implements BaseModel<Idea> {

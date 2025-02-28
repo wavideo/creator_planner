@@ -6,11 +6,9 @@ class MessageProvider extends StateNotifier<String> {
   // 메시지 설정
   void setMessage(String message) {
     state = message;
-  }
-
-  // 메시지 삭제
-  void clearMessage() {
-    state = '';
+    Future.delayed(Duration(seconds: 1), () {
+      state = ''; // 1초 뒤에 실행
+    });
   }
 }
 
@@ -19,6 +17,7 @@ final homePageMessageProvider = StateNotifierProvider<MessageProvider, String>(
   (ref) => MessageProvider(),
 );
 
-final IdeaEditPageMessageProvider = StateNotifierProvider<MessageProvider, String>(
+final IdeaEditPageMessageProvider =
+    StateNotifierProvider<MessageProvider, String>(
   (ref) => MessageProvider(),
 );

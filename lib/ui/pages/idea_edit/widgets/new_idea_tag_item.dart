@@ -1,6 +1,6 @@
-import 'package:creator_planner/core/config/theme/colors.dart';
-import 'package:creator_planner/data/draft_idea_view_model.dart';
-import 'package:creator_planner/data/idea_view_model.dart';
+import 'package:creator_planner/core/theme/colors.dart';
+import 'package:creator_planner/data/view_models/draft_idea_view_model.dart';
+import 'package:creator_planner/data/view_models/idea_view_model.dart';
 import 'package:creator_planner/data/models/idea.dart';
 import 'package:creator_planner/data/models/idea_tag.dart';
 import 'package:creator_planner/ui/pages/idea_edit/idea_edit_page.dart';

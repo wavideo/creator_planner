@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:creator_planner/core/config/theme/colors.dart';
+import 'package:creator_planner/core/theme/colors.dart';
 import 'package:flutter/material.dart';
 
 class ResearchViewsRatioIndicator extends StatelessWidget {

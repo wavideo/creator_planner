@@ -1,4 +1,4 @@
-import 'package:creator_planner/core/config/theme/colors.dart';
+import 'package:creator_planner/core/theme/colors.dart';
 import 'package:creator_planner/core/utils/format_util.dart';
 import 'package:creator_planner/ui/widgets/section_with_title.dart';
 import 'package:flutter/material.dart';

@@ -1,4 +1,4 @@
-import 'package:creator_planner/data/idea_view_model.dart';
+import 'package:creator_planner/data/view_models/idea_view_model.dart';
 import 'package:creator_planner/ui/pages/home/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';

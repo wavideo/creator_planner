@@ -1,5 +1,29 @@
 import 'package:flutter/material.dart';
 
+Future<void> showCustomSnackbar(
+    {required String message, required BuildContext context}) {
+  // 300ms 후에 메시지를 처리
+  Future.delayed(Duration(milliseconds: 300), () {
+    if (message.isNotEmpty) {
+      final overlay = Overlay.of(context);
+      if (overlay != null) {
+        final overlayEntry = OverlayEntry(
+          builder: (context) => CustomSnackbar(message: message),
+        );
+        overlay.insert(overlayEntry);
+
+        // 2초 후에 OverlayEntry 제거
+        Future.delayed(Duration(seconds: 2), () {
+          overlayEntry.remove();
+        });
+      }
+    }
+  });
+
+  // 명시적으로 return을 추가합니다.
+  return Future.value(); // 여기서 void를 반환합니다.
+}
+
 class CustomSnackbar extends StatefulWidget {
   final String message;
   const CustomSnackbar({required this.message});
@@ -34,6 +58,7 @@ class _CustomSnackbarState extends State<CustomSnackbar> {
   Widget build(BuildContext context) {
     // 노치 높이 계산 (상단 여백)
     final double notchHeight = MediaQuery.of(context).padding.top;
+    final double safeNotchHeight = notchHeight > 0 ? notchHeight : 20;
 
     return AnimatedPositioned(
       duration: Duration(milliseconds: 500), // 애니메이션 시간
@@ -58,7 +83,7 @@ class _CustomSnackbarState extends State<CustomSnackbar> {
           color: Colors.transparent,
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            height: notchHeight + 60, // 높이 조정
+            height: safeNotchHeight + 60, // 높이 조정
             decoration: BoxDecoration(
               color: Colors.blue, // 아이폰 알림 스타일의 색상
               borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),

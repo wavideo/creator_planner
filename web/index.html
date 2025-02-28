@@ -31,6 +31,28 @@
 
   <title>creator_planner</title>
   <link rel="manifest" href="manifest.json">
+
+
+  <title>creator_planner</title>
+
+  <!-- ✅ Firebase JS SDK 추가 -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+
+  <script>
+    // ✅ 여기에 Firebase 설정 추가 (내 Firebase 프로젝트 정보 사용)
+    var firebaseConfig = {
+      apiKey: "AIzaSyBbx6Bn5SinLMoS_1qJG_CGWT6tOBO_J7o",
+      authDomain: "creator-planner-8aad8.firebaseapp.com",
+      projectId: "creator-planner-8aad8",
+      storageBucket: "creator-planner-8aad8.firebasestorage.app",
+      messagingSenderId: "756511444668",
+      appId: "1:756511444668:web:60dd1a3cbce4a376e70ab9",
+      measurementId: "G-YKCDE5HC0E"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>
