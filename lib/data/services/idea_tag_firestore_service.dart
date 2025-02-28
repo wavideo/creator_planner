@@ -4,23 +4,27 @@ import 'package:creator_planner/data/services/firebase_service.dart';
 class IdeaTagFirestoreService extends FirestoreService<IdeaTag> {
   IdeaTagFirestoreService() : super('ideaTags');
 
-  Future<void> addItem(IdeaTag item) async {
-    await add(item.id, item.toMap());
+  Future<void> add(IdeaTag item) async {
+    await addUserData(item.id, item.toMap());
   }
 
-  Future<IdeaTag?> getItem(String id) async {
-    return await get(id, (data) => IdeaTag.fromMap(data));
+  Future<IdeaTag?> get(String id) async {
+    return await getData(id, (data) => IdeaTag.fromMap(data));
   }
 
-  Stream<List<IdeaTag>> getItemList() {
-    return getList((data) => IdeaTag.fromMap(data));
+  Stream<List<IdeaTag>> getStream() {
+    return getUserDatasStream((data) => IdeaTag.fromMap(data));
   }
 
-  Future<void> updateItem(IdeaTag item) async {
-    await update(item.id, item.toMap());
+  Future<void> update(IdeaTag item) async {
+    await updateData(item.id, item.toMap());
   }
 
-  Future<void> deleteItem(String id) async {
-    await delete(id);
+  Future<void> delete(String id) async {
+    await deleteData(id);
+  }
+
+  Future<void> deleteAll() async {
+    await deleteUserDatas();
   }
 }

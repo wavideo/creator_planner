@@ -1,15 +1,17 @@
+import 'package:creator_planner/data/idea_view_model.dart';
 import 'package:creator_planner/ui/pages/home/home_page.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // firebase_auth 임포트
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // firebase_auth 임포트
 
-class AuthPage extends StatefulWidget {
+class AuthPage extends ConsumerStatefulWidget {
   const AuthPage({super.key});
 
   @override
   _AuthPageState createState() => _AuthPageState();
 }
 
-class _AuthPageState extends State<AuthPage> {
+class _AuthPageState extends ConsumerState<AuthPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

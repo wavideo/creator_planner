@@ -4,7 +4,7 @@ import 'package:creator_planner/data/idea_view_model.dart';
 import 'package:creator_planner/data/message_view_model.dart';
 import 'package:creator_planner/data/models/idea.dart';
 import 'package:creator_planner/data/models/idea_tag.dart';
-import 'package:creator_planner/service/auth_service/%08sign_out.dart';
+import 'package:creator_planner/service/auth/sign_out.dart';
 import 'package:creator_planner/ui/pages/auth/%08auth_page.dart';
 import 'package:creator_planner/ui/pages/home/widgets/idea_card.dart';
 import 'package:creator_planner/ui/pages/idea_edit/idea_edit_page.dart';

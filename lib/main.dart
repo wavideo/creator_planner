@@ -1,5 +1,6 @@
 import 'package:creator_planner/core/config/theme/colors.dart';
 import 'package:creator_planner/core/config/theme/theme.dart';
+import 'package:creator_planner/data/idea_view_model.dart';
 import 'package:creator_planner/ui/pages/auth/%08auth_page.dart';
 import 'package:creator_planner/ui/pages/home/home_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';

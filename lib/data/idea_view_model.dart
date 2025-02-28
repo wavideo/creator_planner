@@ -1,6 +1,4 @@
 import 'dart:async';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:creator_planner/data/models/idea.dart';
 import 'package:creator_planner/data/models/idea_tag.dart';
 import 'package:creator_planner/data/services/idea_firestore_service.dart';
@@ -16,26 +14,18 @@ class IdeaState {
 }
 
 class IdeaViewModel extends StateNotifier<IdeaState> {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  // Stream<List<Idea>>? _ideasStream;
-  // Stream<List<IdeaTag>>? _ideaTagsStream;
-  StreamSubscription? ideasStream;
-  StreamSubscription? ideaTagsStream;
+  StreamSubscription? ideasStreamSubscription;
+  StreamSubscription? ideaTagsStreamSubscription;
 
   IdeaViewModel() : super(IdeaState(ideas: [], ideaTags: [])) {
     _init();
   }
 
+  // Stream 세팅
   Future<void> _init() async {
     try {
       state = IdeaState(ideas: state.ideas, ideaTags: state.ideaTags);
 
-      // User? user = FirebaseAuth.instance.currentUser;
-      // if (user == null) {
-      //   Logger().e('로그인되지 않은 사용자가 접근했습니다.');
-      //   throw Exception("로그인된 사용자가 없습니다.");
-      // }
-      // String userId = user.uid; // 로그인된 사용자의 userId를 가져옵니다.
       String? userId = FirebaseAuth.instance.currentUser?.uid;
       if (userId == null) {
         Logger().e('사용자가 로그인하지 않았습니다.');
@@ -43,40 +33,17 @@ class IdeaViewModel extends StateNotifier<IdeaState> {
       }
 
       // 스트림 구독
-      ideasStream = _firestore
-          .collection('ideas')
-          .where('userId', isEqualTo: userId)
-          .snapshots()
-          .map((snapshot) {
-        return snapshot.docs.map((doc) {
-          return Idea.fromMap(doc.data());
-        }).toList();
-      }).listen((ideas) {
+      Stream ideasStream = IdeaFirestoreService().getStream();
+      ideasStreamSubscription = ideasStream.listen((ideas) {
         setState(ideas: ideas);
       });
 
-      ideaTagsStream = _firestore
-          .collection('ideaTags')
-          .where('userId', isEqualTo: userId)
-          .snapshots()
-          .map((snapshot) {
-        return snapshot.docs.map((doc) {
-          return IdeaTag.fromMap(doc.data());
-        }).toList();
-      }).listen((ideaTags) {
+      Stream ideaTagsStream = IdeaTagFirestoreService().getStream();
+      ideaTagsStreamSubscription = ideaTagsStream.listen((ideaTags) {
         setState(ideaTags: ideaTags);
       });
 
-      // // 스트림에 변화가 있을 때마다 상태를 업데이트
-      // _ideasStream?.listen((ideas) {
-      //   setState(ideas: ideas);
-      // });
-
-      // _ideaTagsStream?.listen((ideaTags) {
-      //   setState(ideaTags: ideaTags);
-      // });
-
-      Logger().d('AppViewModel에서 모든 데이터를 init');
+      Logger().d('init');
     } catch (e) {
       Logger().e('AppViewModel에서 Idea(), IdeaTag()를 init 실패', error: e);
       throw Exception(
@@ -85,6 +52,14 @@ class IdeaViewModel extends StateNotifier<IdeaState> {
     }
   }
 
+  @override
+  void dispose() {
+    ideasStreamSubscription?.cancel();
+    ideaTagsStreamSubscription?.cancel();
+    super.dispose();
+  }
+
+  // 상태 업데이트
   void setState({List<Idea>? ideas, List<IdeaTag>? ideaTags}) {
     state = IdeaState(
       ideas: ideas ?? state.ideas,
@@ -95,38 +70,25 @@ class IdeaViewModel extends StateNotifier<IdeaState> {
   Future<void> createIdea(Idea idea) async {
     state.ideas.add(idea);
     setState();
-    await IdeaFirestoreService().addItem(idea);
+    await IdeaFirestoreService().add(idea);
     Logger().d('AppViewModel에서 Idea()를 create');
-  }
-
-  Future<void> updateIdea(Idea idea) async {
-    Idea currentIdea = state.ideas.firstWhere((item) => item.id == idea.id);
-    // if (currentIdea == idea) return;
-    Logger().d('#뷰모델저장 currentIdea : $currentIdea');
-    Logger().d('#뷰모델저장 idea : $idea');
-
-    idea = idea.copyWith(updatedAt: DateTime.now());
-    List<Idea> ideas =
-        state.ideas.map((item) => item.id == idea.id ? idea : item).toList();
-
-    setState(ideas: ideas);
-    await IdeaFirestoreService().updateItem(idea);
-
-    Logger().d('AppViewModel에서 Idea()를 update');
-  }
-
-  Future<void> deleteIdea(Idea idea) async {
-    state.ideas.removeWhere((item) => item.id == idea.id);
-    setState();
-    await IdeaFirestoreService().deleteItem(idea.id);
-    Logger().d('AppViewModel에서 Idea()를 delete');
   }
 
   Future<void> createIdeaTag(IdeaTag ideaTag) async {
     state.ideaTags.add(ideaTag);
     setState();
-    await IdeaTagFirestoreService().addItem(ideaTag);
+    await IdeaTagFirestoreService().add(ideaTag);
     Logger().d('AppViewModel에서 IdeaTag()를 create');
+  }
+
+  Future<void> updateIdea(Idea idea) async {
+    idea = idea.copyWith(updatedAt: DateTime.now());
+    List<Idea> ideas =
+        state.ideas.map((item) => item.id == idea.id ? idea : item).toList();
+    setState(ideas: ideas);
+    await IdeaFirestoreService().update(idea);
+
+    Logger().d('AppViewModel에서 Idea()를 update');
   }
 
   Future<void> updateIdeaTag(IdeaTag ideaTag) async {
@@ -134,15 +96,29 @@ class IdeaViewModel extends StateNotifier<IdeaState> {
         .map((item) => item.id == ideaTag.id ? ideaTag : item)
         .toList();
     setState(ideaTags: ideaTags);
-    await IdeaTagFirestoreService().updateItem(ideaTag);
+    await IdeaTagFirestoreService().update(ideaTag);
     Logger().d('AppViewModel에서 IdeaTag()를 update');
+  }
+
+  Future<void> deleteIdea(Idea idea) async {
+    state.ideas.removeWhere((item) => item.id == idea.id);
+    setState();
+    await IdeaFirestoreService().delete(idea.id);
+    Logger().d('AppViewModel에서 Idea()를 delete');
   }
 
   Future<void> deleteIdeaTag(IdeaTag ideaTag) async {
     state.ideaTags.removeWhere((item) => item.id == ideaTag.id);
     setState();
-    await IdeaTagFirestoreService().deleteItem(ideaTag.id);
+    await IdeaTagFirestoreService().delete(ideaTag.id);
     Logger().d('AppViewModel에서 IdeaTag()를 delete');
+  }
+
+  Future<void> clear() async {
+    state = IdeaState(ideas: [], ideaTags: []);
+    await IdeaFirestoreService().deleteAll();
+    await IdeaTagFirestoreService().deleteAll();
+    Logger().d('AppViewModel에서 모든 데이터를 delete');
   }
 }
 
