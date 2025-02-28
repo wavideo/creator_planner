@@ -1,3 +1,4 @@
+import 'package:creator_planner/ui/pages/home/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // firebase_auth 임포트
 
@@ -12,7 +13,6 @@ class _AuthPageState extends State<AuthPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-  
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -54,6 +54,13 @@ class _AuthPageState extends State<AuthPage> {
           await FirebaseAuth.instance.signInAnonymously();
       // 익명 로그인 성공 후 데이터 처리
       print("익명 로그인 성공: ${userCredential.user!.uid}");
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomePage(), // HomePage는 로그인 후 이동할 페이지
+        ),
+      );
     } catch (e) {
       print("익명 로그인 실패: $e");
     }

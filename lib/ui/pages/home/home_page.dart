@@ -4,10 +4,12 @@ import 'package:creator_planner/data/idea_view_model.dart';
 import 'package:creator_planner/data/message_view_model.dart';
 import 'package:creator_planner/data/models/idea.dart';
 import 'package:creator_planner/data/models/idea_tag.dart';
+import 'package:creator_planner/service/auth_service/logout.dart';
 import 'package:creator_planner/ui/pages/auth/%08auth_page.dart';
 import 'package:creator_planner/ui/pages/home/widgets/idea_card.dart';
 import 'package:creator_planner/ui/pages/idea_edit/idea_edit_page.dart';
 import 'package:creator_planner/ui/widgets/custom_snackbar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -53,9 +55,9 @@ class _HomePageState extends ConsumerState<HomePage> {
       appBar: AppBar(centerTitle: true, title: Text('아이디어 보드'), actions: [
         IconButton(
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (contextg) {
-                return AuthPage();
-              }));
+              if (mounted) {
+                signOut(context);
+              }
             },
             icon: Icon(Icons.more_vert)),
       ]),
@@ -73,7 +75,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                   .read(draftIdeaViewModelProvider.notifier)
                   .startIdeaTag(ideaTags);
               Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return IdeaEditPage(key: ideaEditPageKey, idea: idea, isCreated: true);
+                return IdeaEditPage(
+                    key: ideaEditPageKey, idea: idea, isCreated: true);
               }));
             },
           );
