@@ -15,21 +15,21 @@ class FirestoreService<T> {
 
   Future<void> add(String id, Map<String, dynamic> data) async {
     try {
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        Logger().e('로그인되지 않은 사용자가 접근했습니다.');
-        throw Exception("로그인된 사용자가 없습니다.");
-      }
-      String userId = user.uid;
-      // String? userId = FirebaseAuth.instance.currentUser?.uid;
-      // if (userId == null) {
-      //   Logger().e('사용자가 로그인하지 않았습니다.');
+      // User? user = FirebaseAuth.instance.currentUser;
+      // if (user == null) {
+      //   Logger().e('로그인되지 않은 사용자가 접근했습니다.');
       //   throw Exception("로그인된 사용자가 없습니다.");
       // }
+      // String userId = user.uid;
+      String? userId = FirebaseAuth.instance.currentUser?.uid;
+      if (userId == null) {
+        Logger().e('사용자가 로그인하지 않았습니다.');
+        throw Exception("로그인된 사용자가 없습니다.");
+      }
       data['userId'] = userId;
 
       await _db.collection(collectionPath).doc(id).set(data);
-      await _db.collection(collectionPath).doc(id).get();
+      // await _db.collection(collectionPath).doc(id).get();
     } catch (e) {
       Logger().e('Firebase에서 $collectionPath를 add 실패', error: e);
       throw Exception("Firebase에서 $collectionPath를 add 과정에 문제가 발생했습니다. 에러: $e");
@@ -90,7 +90,7 @@ class FirestoreService<T> {
   Future<void> update(String id, Map<String, dynamic> data) async {
     try {
       await _db.collection(collectionPath).doc(id).update(data);
-      await _db.collection(collectionPath).doc(id).get();
+      // await _db.collection(collectionPath).doc(id).get();
     } catch (e) {
       Logger().e('Firebase에서 $collectionPath를 update 실패', error: e);
       throw Exception(
@@ -101,7 +101,7 @@ class FirestoreService<T> {
   Future<void> delete(String id) async {
     try {
       await _db.collection(collectionPath).doc(id).delete();
-      await _db.collection(collectionPath).doc(id).get();
+      // await _db.collection(collectionPath).doc(id).get();
     } catch (e) {
       Logger().e('Firebase에서 $collectionPath를 delete 실패', error: e);
       throw Exception(

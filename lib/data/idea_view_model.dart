@@ -30,12 +30,17 @@ class IdeaViewModel extends StateNotifier<IdeaState> {
     try {
       state = IdeaState(ideas: state.ideas, ideaTags: state.ideaTags);
 
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        Logger().e('로그인되지 않은 사용자가 접근했습니다.');
+      // User? user = FirebaseAuth.instance.currentUser;
+      // if (user == null) {
+      //   Logger().e('로그인되지 않은 사용자가 접근했습니다.');
+      //   throw Exception("로그인된 사용자가 없습니다.");
+      // }
+      // String userId = user.uid; // 로그인된 사용자의 userId를 가져옵니다.
+      String? userId = FirebaseAuth.instance.currentUser?.uid;
+      if (userId == null) {
+        Logger().e('사용자가 로그인하지 않았습니다.');
         throw Exception("로그인된 사용자가 없습니다.");
       }
-      String userId = user.uid; // 로그인된 사용자의 userId를 가져옵니다.
 
       // 스트림 구독
       ideasStream = _firestore
