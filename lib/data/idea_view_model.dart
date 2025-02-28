@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:creator_planner/data/models/idea.dart';
 import 'package:creator_planner/data/models/idea_tag.dart';
 import 'package:creator_planner/data/services/idea_firestore_service.dart';
 import 'package:creator_planner/data/services/idea_tag_firestore_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
 
@@ -14,8 +17,10 @@ class IdeaState {
 
 class IdeaViewModel extends StateNotifier<IdeaState> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  Stream<List<Idea>>? _ideasStream;
-  Stream<List<IdeaTag>>? _ideaTagsStream;
+  // Stream<List<Idea>>? _ideasStream;
+  // Stream<List<IdeaTag>>? _ideaTagsStream;
+  StreamSubscription? ideasStream;
+  StreamSubscription? ideaTagsStream;
 
   IdeaViewModel() : super(IdeaState(ideas: [], ideaTags: [])) {
     _init();
@@ -25,28 +30,46 @@ class IdeaViewModel extends StateNotifier<IdeaState> {
     try {
       state = IdeaState(ideas: state.ideas, ideaTags: state.ideaTags);
 
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        Logger().e('로그인되지 않은 사용자가 접근했습니다.');
+        throw Exception("로그인된 사용자가 없습니다.");
+      }
+      String userId = user.uid; // 로그인된 사용자의 userId를 가져옵니다.
+
       // 스트림 구독
-      _ideasStream = _firestore.collection('ideas').snapshots().map((snapshot) {
+      ideasStream = _firestore
+          .collection('ideas')
+          .where('userId', isEqualTo: userId)
+          .snapshots()
+          .map((snapshot) {
         return snapshot.docs.map((doc) {
           return Idea.fromMap(doc.data());
         }).toList();
-      });
-
-      _ideaTagsStream =
-          _firestore.collection('ideaTags').snapshots().map((snapshot) {
-        return snapshot.docs.map((doc) {
-          return IdeaTag.fromMap(doc.data());
-        }).toList();
-      });
-
-      // 스트림에 변화가 있을 때마다 상태를 업데이트
-      _ideasStream?.listen((ideas) {
+      }).listen((ideas) {
         setState(ideas: ideas);
       });
 
-      _ideaTagsStream?.listen((ideaTags) {
+      ideaTagsStream = _firestore
+          .collection('ideaTags')
+          .where('userId', isEqualTo: userId)
+          .snapshots()
+          .map((snapshot) {
+        return snapshot.docs.map((doc) {
+          return IdeaTag.fromMap(doc.data());
+        }).toList();
+      }).listen((ideaTags) {
         setState(ideaTags: ideaTags);
       });
+
+      // // 스트림에 변화가 있을 때마다 상태를 업데이트
+      // _ideasStream?.listen((ideas) {
+      //   setState(ideas: ideas);
+      // });
+
+      // _ideaTagsStream?.listen((ideaTags) {
+      //   setState(ideaTags: ideaTags);
+      // });
 
       Logger().d('AppViewModel에서 모든 데이터를 init');
     } catch (e) {
