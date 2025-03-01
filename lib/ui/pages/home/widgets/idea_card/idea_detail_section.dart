@@ -42,7 +42,7 @@ class _IdeaDetailSectionState extends State<IdeaDetailSection> {
                         child: Text(widget.idea.content ?? '',
                             style: TextStyle(
                                 fontSize: 14, color: AppColor.gray20.of(context)),
-                            maxLines: 4,
+                            maxLines: 8,
                             overflow: TextOverflow.ellipsis),
                       ),
                     ],

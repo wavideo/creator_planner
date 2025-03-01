@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 final ThemeData lightTheme = ThemeData(
   // 기본 색상 설정
@@ -38,14 +39,14 @@ final ThemeData lightTheme = ThemeData(
     backgroundColor: Color(0xFF007AFF), // 파란색 배경
     foregroundColor: Colors.white, // 하얀색 아이콘 및 글씨
   ),
-  textTheme: const TextTheme(
+  textTheme: TextTheme(
     displayLarge: TextStyle(color: Colors.black),
     displayMedium: TextStyle(color: Colors.black),
     displaySmall: TextStyle(color: Colors.black),
     headlineLarge: TextStyle(color: Colors.black),
     headlineMedium: TextStyle(color: Colors.black),
     // ... other text styles ...
-    bodyLarge: TextStyle(color: Colors.black), // 본문 텍스트
+    bodyLarge: GoogleFonts.notoSansKr(textStyle: TextStyle(color: Colors.black)), // 본문 텍스트
     bodyMedium: TextStyle(color: Colors.black),
     bodySmall: TextStyle(color: Colors.grey), // 작은 텍스트는 회색으로
   ),

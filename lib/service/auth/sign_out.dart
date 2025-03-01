@@ -7,7 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
 import 'package:restart_app/restart_app.dart';
 
-
 Future<void> signOut(BuildContext context, WidgetRef ref) async {
   try {
     User? user = FirebaseAuth.instance.currentUser;
@@ -22,7 +21,8 @@ Future<void> signOut(BuildContext context, WidgetRef ref) async {
       }
 
       if (kIsWeb) {
-        // signOutWeb();
+        // ! TODO:정상 작동 안함
+        _webRefresh();
       } else {
         Restart.restartApp(
           notificationTitle: '로그아웃 완료',
@@ -33,5 +33,16 @@ Future<void> signOut(BuildContext context, WidgetRef ref) async {
   } catch (e) {
     Logger().e("로그아웃 또는 계정 삭제 실패: $e");
     Exception("로그아웃 또는 계정 삭제 과정에 문제가 발생했습니다. 에러: $e");
+  }
+}
+
+void _webRefresh() {
+  // `dart:html`을 직접 사용하면 앱 빌드 시 오류 발생하므로, `dynamic`으로 우회
+  final htmlWindow = (kIsWeb ? (Uri.base) : null);
+  if (htmlWindow != null) {
+    // URL 새로고침 (현재 페이지 유지)
+    // ignore: avoid_dynamic_calls
+    (Uri.base).replace();
+    // (htmlWindow as dynamic)
   }
 }

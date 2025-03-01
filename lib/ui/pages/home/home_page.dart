@@ -12,6 +12,7 @@ import 'package:creator_planner/core/utils/custom_snackbar_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -22,10 +23,14 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   ScrollController _scrollController = ScrollController();
+  bool? isGridView;
+  IconData? gridViewIcon;
 
   @override
   void initState() {
     super.initState();
+    isGridView = true;
+    gridViewIcon = Icons.grid_view;
     _scrollController = ScrollController();
   }
 
@@ -37,6 +42,20 @@ class _HomePageState extends ConsumerState<HomePage> {
     return Scaffold(
       backgroundColor: AppColor.containerWhite.of(context),
       appBar: AppBar(centerTitle: true, title: Text('아이디어 보드'), actions: [
+        IconButton(
+          icon: Icon(gridViewIcon),
+          onPressed: () {
+            setState(() {
+              if (isGridView!) {
+                isGridView = false;
+                gridViewIcon = Icons.grid_view;
+              } else {
+                isGridView = true;
+                gridViewIcon = Icons.view_agenda_outlined;
+              }
+            });
+          },
+        ),
         IconButton(
             onPressed: () {
               if (mounted) {
@@ -99,14 +118,23 @@ class _HomePageState extends ConsumerState<HomePage> {
                   final sortedIdea = List<Idea>.from(ideasState)
                     ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
                   // final sortedIdea = <Idea>[];
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: sortedIdea.length,
-                    itemBuilder: (context, index) {
-                      return IdeaCard(idea: sortedIdea[index]);
-                    },
-                  );
+                  return isGridView!
+                      ? StaggeredGrid.count(
+                          crossAxisCount: 2, // 한 줄에 아이템 몇 개
+                          mainAxisSpacing: 0.0,
+                          crossAxisSpacing: 4.0,
+                          children: sortedIdea.map((idea) {
+                            return IdeaCard(idea: idea);
+                          }).toList(),
+                        )
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: sortedIdea.length,
+                          itemBuilder: (context, index) {
+                            return IdeaCard(idea: sortedIdea[index]);
+                          },
+                        );
                 }),
               ),
             ],

@@ -43,7 +43,7 @@ class IdeaCard extends StatelessWidget {
                       IdeaEditPage(key: ideaEditPageKey, idea: idea)));
         },
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          padding: const EdgeInsets.symmetric(vertical: 2.0),
           child: BorderCard(
             paddingHorizontal: 20,
             paddingVertical: 20,
