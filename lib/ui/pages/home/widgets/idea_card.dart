@@ -42,28 +42,25 @@ class IdeaCard extends StatelessWidget {
                   builder: (context) =>
                       IdeaEditPage(key: ideaEditPageKey, idea: idea)));
         },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 2.0),
-          child: BorderCard(
-            paddingHorizontal: 20,
-            paddingVertical: 20,
-            child: Column(
-              children: [
-                IdeaDetailSection(idea: idea),
-                if (isPrototype)
-                  PrototypeSection(
-                      title: '내가 정한 이름',
-                      channelName: '내 채널',
-                      targetViews: 13004),
-                if (isResearch)
-                  ResearchSection(
-                      title: '반드시 봐야하는 인터넷 꿀팁 3가지',
-                      channelName: '아정당',
-                      views: 22232200,
-                      subscribers: 1000000),
-                if (isTask) TaskScheduleSection(),
-              ],
-            ),
+        child: BorderCard(
+          paddingHorizontal: 16,
+          paddingVertical: 14,
+          child: Column(
+            children: [
+              IdeaDetailSection(idea: idea),
+              if (isPrototype)
+                PrototypeSection(
+                    title: '내가 정한 이름',
+                    channelName: '내 채널',
+                    targetViews: 13004),
+              if (isResearch)
+                ResearchSection(
+                    title: '반드시 봐야하는 인터넷 꿀팁 3가지',
+                    channelName: '아정당',
+                    views: 22232200,
+                    subscribers: 1000000),
+              if (isTask) TaskScheduleSection(),
+            ],
           ),
         ),
       );

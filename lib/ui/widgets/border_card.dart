@@ -16,16 +16,17 @@ class BorderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
           side: BorderSide(color: AppColor.containerGray20.of(context).withValues(alpha: 0.8)),
-          borderRadius: BorderRadius.circular(borderRadius ?? 14)),
+          borderRadius: BorderRadius.circular(borderRadius ?? 10)),
       elevation: 6,
       shadowColor: Colors.black.withValues(alpha: 0.2),
       color: Colors.white,
       child: Padding(
           padding: EdgeInsets.symmetric(
-              horizontal: paddingHorizontal ?? 0,
-              vertical: paddingVertical ?? 24),
+              horizontal: paddingHorizontal ?? 16,
+              vertical: paddingVertical ?? 14),
           child: child),
     );
   }

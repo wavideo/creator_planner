@@ -117,22 +117,24 @@ class _HomePageState extends ConsumerState<HomePage> {
 
                   final sortedIdea = List<Idea>.from(ideasState)
                     ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-                  // final sortedIdea = <Idea>[];
                   return isGridView!
                       ? StaggeredGrid.count(
                           crossAxisCount: 2, // 한 줄에 아이템 몇 개
-                          mainAxisSpacing: 0.0,
-                          crossAxisSpacing: 4.0,
+                          mainAxisSpacing: 6.0,
+                          crossAxisSpacing: 6.0,
                           children: sortedIdea.map((idea) {
                             return IdeaCard(idea: idea);
                           }).toList(),
                         )
-                      : ListView.builder(
+                      : ListView.separated(
                           shrinkWrap: true,
                           physics: NeverScrollableScrollPhysics(),
                           itemCount: sortedIdea.length,
                           itemBuilder: (context, index) {
                             return IdeaCard(idea: sortedIdea[index]);
+                          },
+                          separatorBuilder: (BuildContext context, int index) {
+                            return SizedBox(height: 6);
                           },
                         );
                 }),
