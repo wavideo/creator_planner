@@ -13,6 +13,7 @@ class Idea implements BaseModel<Idea> {
   final DateTime createdAt;
   @override
   final DateTime updatedAt;
+  final double order;
   final String title;
   final String? content;
   final List<String> tagIds;
@@ -24,6 +25,7 @@ class Idea implements BaseModel<Idea> {
     String? id,
     DateTime? createdAt,
     DateTime? updatedAt,
+    double? order,
     List<String>? tagIds,
     List<String>? prototypeIds,
     List<String>? researchIds,
@@ -34,6 +36,7 @@ class Idea implements BaseModel<Idea> {
   })  : id = id ?? Uuid().v4(),
         createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now(),
+        order = order ?? 1.0,
         tagIds = tagIds ?? [],
         prototypeIds = prototypeIds ?? [],
         researchIds = researchIds ?? [],
@@ -44,6 +47,7 @@ class Idea implements BaseModel<Idea> {
     String? id,
     DateTime? createdAt,
     DateTime? updatedAt,
+    double? order,
     String? title,
     String? content,
     List<String>? tagIds,
@@ -56,6 +60,7 @@ class Idea implements BaseModel<Idea> {
       id: id ?? this.id,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      order: order ?? this.order,
       title: title ?? this.title,
       content: content != null
           ? content.isNotEmpty
@@ -84,6 +89,7 @@ class Idea implements BaseModel<Idea> {
       'id': id,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
+      'order': order,
       'title': title,
       'content': content,
       'tagIds': tagIds,
@@ -103,6 +109,7 @@ class Idea implements BaseModel<Idea> {
       updatedAt: map['updatedAt'] != null
           ? (map['updatedAt'] as Timestamp).toDate()
           : null,
+      order: map['order'] is num ? map['order'].toDouble() : 1.0,
       title: map['title'] is String
           ? map['title'] as String
           : map['title'].toString(),
@@ -135,7 +142,7 @@ class Idea implements BaseModel<Idea> {
 
   @override
   String toString() {
-    return 'Idea(id: $id, createdAt: $createdAt, updatedAt: $updatedAt, title: $title, content: $content, tagIds: $tagIds, targetViews: $targetViews, prototypeIds: $prototypeIds, researchIds: $researchIds, taskScheduleIds: $taskScheduleIds)';
+    return 'Idea(id: $id, createdAt: $createdAt, updatedAt: $updatedAt, order: $order, title: $title, content: $content, tagIds: $tagIds, targetViews: $targetViews, prototypeIds: $prototypeIds, researchIds: $researchIds, taskScheduleIds: $taskScheduleIds)';
   }
 
   @override
@@ -146,6 +153,7 @@ class Idea implements BaseModel<Idea> {
     return other.id == id &&
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt &&
+        other.order == order &&
         other.title == title &&
         other.content == content &&
         listEquals(other.tagIds, tagIds) &&
@@ -160,6 +168,7 @@ class Idea implements BaseModel<Idea> {
     return id.hashCode ^
         createdAt.hashCode ^
         updatedAt.hashCode ^
+        order.hashCode ^
         title.hashCode ^
         content.hashCode ^
         tagIds.hashCode ^

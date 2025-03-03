@@ -198,6 +198,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.0.0"
+  flutter_masonry_view:
+    dependency: "direct main"
+    description:
+      name: flutter_masonry_view
+      sha256: b729d28c07f9d5b2011535c8823e72772247b0746fa37b0e1cabaa0ef2e9dbc0
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.2"
   flutter_riverpod:
     dependency: "direct main"
     description:
@@ -448,6 +456,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.8"
+  reorderable_staggered_scroll_view:
+    dependency: "direct main"
+    description:
+      name: reorderable_staggered_scroll_view
+      sha256: "2d4d23be9e2bf833d765b256d2527e74e37957bc623ce13db7a7f507793ba6dc"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.2"
   reorderables:
     dependency: "direct main"
     description:

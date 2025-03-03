@@ -68,6 +68,14 @@ class IdeaViewModel extends StateNotifier<IdeaState> {
   }
 
   Future<void> createIdea(Idea idea) async {
+    double maxOrder = state.ideas.isEmpty
+        ? 1.0
+        : state.ideas.map((item) => item.order).reduce((a, b) => a > b ? a : b);
+    idea = idea.copyWith(
+        order: maxOrder + 1,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now());
+
     state.ideas.add(idea);
     setState();
     await IdeaFirestoreService().add(idea);
@@ -82,7 +90,52 @@ class IdeaViewModel extends StateNotifier<IdeaState> {
   }
 
   Future<void> updateIdea(Idea idea) async {
-    idea = idea.copyWith(updatedAt: DateTime.now());
+    double maxOrder = state.ideas.isEmpty
+        ? 1.0
+        : state.ideas.map((item) => item.order).reduce((a, b) => a > b ? a : b);
+    idea = idea.copyWith(order: maxOrder + 1, updatedAt: DateTime.now());
+    List<Idea> ideas =
+        state.ideas.map((item) => item.id == idea.id ? idea : item).toList();
+    setState(ideas: ideas);
+    await IdeaFirestoreService().update(idea);
+
+    Logger().d('AppViewModel에서 Idea()를 update');
+  }
+
+  Future<void> changeOrderIdea(Idea idea, {double? beforeOrder}) async {
+    double newOrder = 1.0;
+
+    if (beforeOrder == null) {
+      if (state.ideas.isEmpty) {
+        // 맨 앞
+        newOrder = 1.0;
+      } else {
+        double minOrder = state.ideas
+            .map((item) => item.order)
+            .reduce((a, b) => a < b ? a : b);
+        // 맨 앞
+        newOrder = minOrder / 2;
+      }
+    } else {
+      List<double> afterOrders = state.ideas
+          .where((item) => item.order > beforeOrder)
+          .map((item) => item.order)
+          .toList();
+
+      if (afterOrders.isEmpty) {
+        double maxOrder = state.ideas
+            .map((item) => item.order)
+            .reduce((a, b) => a > b ? a : b);
+        // 맨 뒤
+        newOrder = maxOrder + 1.0;
+      } else {
+        double afterOrder = afterOrders.reduce((a, b) => a < b ? a : b);
+        // 사이
+        newOrder = (beforeOrder + afterOrder) / 2;
+      }
+    }
+
+    idea = idea.copyWith(order: newOrder);
     List<Idea> ideas =
         state.ideas.map((item) => item.id == idea.id ? idea : item).toList();
     setState(ideas: ideas);
