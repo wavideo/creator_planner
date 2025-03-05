@@ -27,19 +27,7 @@ class IdeaCard extends StatelessWidget {
     return Consumer(builder: (context, ref, child) {
       return GestureDetector(
         onTap: () {
-          ref
-              .read(draftIdeaViewModelProvider.notifier)
-              .startIdea(idea.copyWith());
-
-          List<IdeaTag> ideaTags =
-              ref.read(ideaViewModelProvider).ideaTags.toList();
-          ref.read(draftIdeaViewModelProvider.notifier).startIdeaTag(ideaTags);
-
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      IdeaEditPage(key: ideaEditPageKey, idea: idea)));
+          _navigateToEditPage(ref, context);
         },
         child: BorderCard(
           paddingHorizontal: 16,
@@ -49,9 +37,7 @@ class IdeaCard extends StatelessWidget {
               IdeaDetailSection(idea: idea),
               if (isPrototype)
                 PrototypeSection(
-                    title: '내가 정한 이름',
-                    channelName: '내 채널',
-                    targetViews: 13004),
+                    title: '내가 정한 이름', channelName: '내 채널', targetViews: 13004),
               if (isResearch)
                 ResearchSection(
                     title: '반드시 봐야하는 인터넷 꿀팁 3가지',
@@ -64,5 +50,18 @@ class IdeaCard extends StatelessWidget {
         ),
       );
     });
+  }
+
+  void _navigateToEditPage(WidgetRef ref, BuildContext context) {
+    ref.read(draftIdeaViewModelProvider.notifier).startIdea(idea.copyWith());
+
+    List<IdeaTag> ideaTags = ref.read(ideaViewModelProvider).ideaTags.toList();
+    ref.read(draftIdeaViewModelProvider.notifier).startIdeaTag(ideaTags);
+
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                IdeaEditPage(key: ideaEditPageKey, idea: idea)));
   }
 }

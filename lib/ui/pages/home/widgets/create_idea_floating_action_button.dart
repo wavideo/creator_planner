@@ -14,25 +14,23 @@ class CreateIdeaFloatingActionButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return FloatingActionButton(
-          child: Icon(Icons.add),
-          onPressed: () async {
-            // 임시 게시글 생성
-            var idea = Idea(title: '');
-            ref.read(draftIdeaViewModelProvider.notifier).startIdea(idea);
-    
-            // 임시 태그리스트 생성
-            List<IdeaTag> ideaTags =
-                ref.read(ideaViewModelProvider).ideaTags.toList();
-            ref
-                .read(draftIdeaViewModelProvider.notifier)
-                .startIdeaTag(ideaTags);
-    
-            // editPage로 이동
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return IdeaEditPage(
-                  key: ideaEditPageKey, idea: idea, isCreated: true);
-            }));
-          },
-        );
+      child: Icon(Icons.add),
+      onPressed: () => _createIdea(ref, context),
+    );
+  }
+
+  void _createIdea(WidgetRef ref, BuildContext context) async {
+    // 임시 게시글 생성
+    var idea = Idea(title: '');
+    ref.read(draftIdeaViewModelProvider.notifier).startIdea(idea);
+
+    // 임시 태그리스트 생성
+    List<IdeaTag> ideaTags = ref.read(ideaViewModelProvider).ideaTags.toList();
+    ref.read(draftIdeaViewModelProvider.notifier).startIdeaTag(ideaTags);
+
+    // editPage로 이동
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return IdeaEditPage(key: ideaEditPageKey, idea: idea, isCreated: true);
+    }));
   }
 }

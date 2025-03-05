@@ -52,53 +52,64 @@ class ChangeOrderBottomSheet extends ConsumerWidget {
           SizedBox(
             height: 20,
           ),
-
-          // DIVIDER: 버튼 3개
-
-          ElevatedButton.icon(
-              icon: Icon(Icons.vertical_align_top, color: Colors.blue),
-              label: Text(
-                '맨 위로 올리기',
-                style: TextStyle(color: Colors.blue),
-              ),
-              onPressed: () {
-                ref.read(ideaViewModelProvider.notifier).changeOrderIdea(
-                    sortedIdea[index],
-                    beforeOrder: sortedIdea.first.order);
-                Navigator.pop(context);
-              },
-              style: _buttonStyle),
+          _buildMoveToTopButton(ref, context),
           SizedBox(height: 6),
-          ElevatedButton.icon(
-              icon: Icon(Icons.arrow_upward_rounded),
-              label: Text('올리기'),
-              onPressed: () {
-                ref.read(ideaViewModelProvider.notifier).changeOrderIdea(
-                    sortedIdea[index],
-                    beforeOrder: sortedIdea[index - 1].order);
-                Navigator.pop(context);
-              },
-              style: _buttonStyle),
+          _buildMoveUpButton(ref, context),
           SizedBox(height: 6),
-          ElevatedButton.icon(
-              icon: Icon(Icons.arrow_downward_rounded),
-              label: Text('내리기'),
-              onPressed: () {
-                ref.read(ideaViewModelProvider.notifier).changeOrderIdea(
-                    sortedIdea[index],
-                    beforeOrder: index != sortedIdea.length - 2
-                        ? sortedIdea[index + 2].order
-                        : null);
-                Navigator.pop(context);
-              },
-              style: _buttonStyle),
+          _buildMoveDownButton(ref, context),
         ],
       ),
     );
   }
+  
+  // DIVIDER: 버튼 3개
+
+  ElevatedButton _buildMoveDownButton(WidgetRef ref, BuildContext context) {
+    return ElevatedButton.icon(
+            icon: Icon(Icons.arrow_downward_rounded),
+            label: Text('내리기'),
+            onPressed: () {
+              ref.read(ideaViewModelProvider.notifier).changeOrderIdea(
+                  sortedIdea[index],
+                  beforeOrder: index != sortedIdea.length - 2
+                      ? sortedIdea[index + 2].order
+                      : null);
+              Navigator.pop(context);
+            },
+            style: _buttonStyle);
+  }
+
+  ElevatedButton _buildMoveUpButton(WidgetRef ref, BuildContext context) {
+    return ElevatedButton.icon(
+            icon: Icon(Icons.arrow_upward_rounded),
+            label: Text('올리기'),
+            onPressed: () {
+              ref.read(ideaViewModelProvider.notifier).changeOrderIdea(
+                  sortedIdea[index],
+                  beforeOrder: sortedIdea[index - 1].order);
+              Navigator.pop(context);
+            },
+            style: _buttonStyle);
+  }
+
+  ElevatedButton _buildMoveToTopButton(WidgetRef ref, BuildContext context) {
+    return ElevatedButton.icon(
+            icon: Icon(Icons.vertical_align_top, color: Colors.blue),
+            label: Text(
+              '맨 위로 올리기',
+              style: TextStyle(color: Colors.blue),
+            ),
+            onPressed: () {
+              ref.read(ideaViewModelProvider.notifier).changeOrderIdea(
+                  sortedIdea[index],
+                  beforeOrder: sortedIdea.first.order);
+              Navigator.pop(context);
+            },
+            style: _buttonStyle);
+  }
 }
 
-// DIVIDER: 스타일
+// DIVIDER: 버튼 스타일
 
 ButtonStyle _buttonStyle = ButtonStyle(
   padding: MaterialStateProperty.all(EdgeInsets.symmetric(vertical: 14)),
