@@ -1,7 +1,7 @@
 import 'package:creator_planner/core/theme/colors.dart';
 import 'package:creator_planner/core/utils/format_util.dart';
 import 'package:creator_planner/data/models/idea.dart';
-import 'package:creator_planner/ui/pages/home/widgets/idea_card/tag_list_with_gradients.dart';
+import 'package:creator_planner/ui/pages/home/widgets/idea_card/sections/tag_list_with_gradients.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

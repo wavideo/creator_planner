@@ -2,15 +2,14 @@ import 'package:creator_planner/data/view_models/draft_idea_view_model.dart';
 import 'package:creator_planner/data/view_models/idea_view_model.dart';
 import 'package:creator_planner/data/models/idea.dart';
 import 'package:creator_planner/data/models/idea_tag.dart';
-import 'package:creator_planner/ui/pages/home/widgets/idea_card/idea_detail_section.dart';
-import 'package:creator_planner/ui/pages/home/widgets/idea_card/research_section.dart';
-import 'package:creator_planner/ui/pages/home/widgets/idea_card/prototype_section.dart';
-import 'package:creator_planner/ui/pages/home/widgets/idea_card/task_schedule_section.dart';
+import 'package:creator_planner/ui/pages/home/widgets/idea_card/sections/idea_detail_section.dart';
+import 'package:creator_planner/ui/pages/home/widgets/idea_card/sections/research_section.dart';
+import 'package:creator_planner/ui/pages/home/widgets/idea_card/sections/prototype_section.dart';
+import 'package:creator_planner/ui/pages/home/widgets/idea_card/sections/task_schedule_section.dart';
 import 'package:creator_planner/ui/pages/idea_edit/idea_edit_page.dart';
 import 'package:creator_planner/ui/widgets/border_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logger/logger.dart';
 
 class IdeaCard extends StatelessWidget {
   final Idea idea;

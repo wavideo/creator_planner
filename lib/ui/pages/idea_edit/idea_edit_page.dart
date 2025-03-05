@@ -7,10 +7,10 @@ import 'package:creator_planner/data/view_models/idea_view_model.dart';
 import 'package:creator_planner/data/view_models/message_view_model.dart';
 import 'package:creator_planner/data/models/idea.dart';
 import 'package:creator_planner/data/models/idea_tag.dart';
-import 'package:creator_planner/ui/pages/home/widgets/idea_card/prototype_section.dart';
-import 'package:creator_planner/ui/pages/home/widgets/idea_card/research_section.dart';
-import 'package:creator_planner/ui/pages/home/widgets/idea_card/tag_list_with_gradients.dart';
-import 'package:creator_planner/ui/pages/home/widgets/idea_card/task_schedule_section.dart';
+import 'package:creator_planner/ui/pages/home/widgets/idea_card/sections/prototype_section.dart';
+import 'package:creator_planner/ui/pages/home/widgets/idea_card/sections/research_section.dart';
+import 'package:creator_planner/ui/pages/home/widgets/idea_card/sections/tag_list_with_gradients.dart';
+import 'package:creator_planner/ui/pages/home/widgets/idea_card/sections/task_schedule_section.dart';
 import 'package:creator_planner/ui/pages/idea_edit/widgets/new_idea_tag_item.dart';
 import 'package:creator_planner/core/utils/custom_snackbar_helper.dart';
 import 'package:flutter/foundation.dart';
@@ -186,6 +186,11 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
                     // DIVIDER: 바텀 키보드 위젯
                     Builder(
                       builder: (context) {
+                        List<String> ideaTagIds = ref
+                            .watch(draftIdeaViewModelProvider)
+                            .draftIdea!
+                            .tagIds;
+
                         double keyboardHeight =
                             MediaQuery.of(context).viewInsets.bottom;
                         return Positioned(
@@ -218,13 +223,6 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
                                       enableDrag: true,
                                       isScrollControlled: true,
                                       builder: (BuildContext context) {
-                                        // WidgetsBinding.instance
-                                        //     .addPostFrameCallback((_) {
-                                        //   FocusScope.of(
-                                        //     context,
-                                        //   ).requestFocus(_addTagFocusNode);
-                                        // });
-
                                         return Padding(
                                           padding: EdgeInsets.only(
                                             bottom: MediaQuery.of(
@@ -250,7 +248,7 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
                                       ),
                                       SizedBox(width: 4),
                                       Text(
-                                        '태그 추가',
+                                        ideaTagIds.length == 0 ? '태그 추가' : '태그 (${ideaTagIds.length})',
                                         style: TextStyle(
                                           color: AppColor.gray10.of(context),
                                           fontSize: 14,
