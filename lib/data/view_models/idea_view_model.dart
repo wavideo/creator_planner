@@ -69,7 +69,7 @@ class IdeaViewModel extends StateNotifier<IdeaState> {
 
   Future<void> createIdea(Idea idea) async {
     double maxOrder = state.ideas.isEmpty
-        ? 1.0
+        ? 0.0
         : state.ideas.map((item) => item.order).reduce((a, b) => a > b ? a : b);
     idea = idea.copyWith(
         order: maxOrder + 1,
@@ -91,7 +91,7 @@ class IdeaViewModel extends StateNotifier<IdeaState> {
 
   Future<void> updateIdea(Idea idea) async {
     double maxOrder = state.ideas.isEmpty
-        ? 1.0
+        ? 0.0
         : state.ideas.map((item) => item.order).reduce((a, b) => a > b ? a : b);
     idea = idea.copyWith(order: maxOrder + 1, updatedAt: DateTime.now());
     List<Idea> ideas =
@@ -114,7 +114,7 @@ class IdeaViewModel extends StateNotifier<IdeaState> {
             .map((item) => item.order)
             .reduce((a, b) => a < b ? a : b);
         // 맨 앞
-        newOrder = minOrder / 2;
+        newOrder = minOrder - 0.0000001;
       }
     } else {
       List<double> afterOrders = state.ideas
