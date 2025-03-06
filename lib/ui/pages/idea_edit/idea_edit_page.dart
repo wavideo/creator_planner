@@ -7,11 +7,12 @@ import 'package:creator_planner/data/view_models/idea_view_model.dart';
 import 'package:creator_planner/data/view_models/message_view_model.dart';
 import 'package:creator_planner/data/models/idea.dart';
 import 'package:creator_planner/data/models/idea_tag.dart';
-import 'package:creator_planner/ui/pages/home/widgets/idea_card/sections/prototype_section.dart';
-import 'package:creator_planner/ui/pages/home/widgets/idea_card/sections/research_section.dart';
+import 'package:creator_planner/ui/pages/idea_edit/widgets/prototype_section.dart';
+import 'package:creator_planner/ui/pages/idea_edit/widgets/research_section.dart';
 import 'package:creator_planner/ui/pages/home/widgets/idea_card/sections/tag_list_with_gradients.dart';
-import 'package:creator_planner/ui/pages/home/widgets/idea_card/sections/task_schedule_section.dart';
-import 'package:creator_planner/ui/pages/idea_edit/widgets/new_idea_tag_item.dart';
+import 'package:creator_planner/ui/pages/idea_edit/widgets/task_schedule_section.dart';
+import 'package:creator_planner/ui/widgets/keyword_item/selectable_keyword_item.dart';
+import 'package:creator_planner/ui/widgets/keyword_item/selected_keyword_item.dart';
 import 'package:creator_planner/core/utils/custom_snackbar_helper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -143,38 +144,29 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
                               _buildTitleTextField(),
                               _buildContentTextField(),
                               SizedBox(height: 50),
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                                height: 50,
-                                child: Row(
-                                  children: [
-                                    // 태그
-                                    TagListWithGradients(
-                                      ideaId: ref
-                                          .watch(
-                                            draftIdeaViewModelProvider,
-                                          )
-                                          .draftIdea!
-                                          .id,
-                                      isDraft: true,
-                                    ),
-                                  ],
-                                ),
+                              TagListWithGradients(
+                                ideaId: ref
+                                    .watch(
+                                      draftIdeaViewModelProvider,
+                                    )
+                                    .draftIdea!
+                                    .id,
+                                isDraft: true,
                               ),
                               //END:
 
                               // START: 하단 분석 위젯
-                              PrototypeSection(
-                                title: '내가 정한 이름',
-                                channelName: '내 채널',
-                                targetViews: 13004,
-                              ),
-                              ResearchSection(
-                                title: '반드시 봐야하는 인터넷 꿀팁 3가지',
-                                channelName: '아정당',
-                                views: 22232200,
-                                subscribers: 1000000,
-                              ),
+                              // PrototypeSection(
+                              //   title: '내가 정한 이름',
+                              //   channelName: '내 채널',
+                              //   targetViews: 13004,
+                              // ),
+                              // ResearchSection(
+                              //   title: '반드시 봐야하는 인터넷 꿀팁 3가지',
+                              //   channelName: '아정당',
+                              //   views: 22232200,
+                              //   subscribers: 1000000,
+                              // ),
                               TaskScheduleSection(),
                               // END:
                             ],
@@ -248,7 +240,9 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
                                       ),
                                       SizedBox(width: 4),
                                       Text(
-                                        ideaTagIds.length == 0 ? '태그 추가' : '태그 (${ideaTagIds.length})',
+                                        ideaTagIds.length == 0
+                                            ? '태그 추가'
+                                            : '태그 (${ideaTagIds.length})',
                                         style: TextStyle(
                                           color: AppColor.gray10.of(context),
                                           fontSize: 14,
@@ -571,14 +565,14 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
                                   height: 140,
                                   child: SingleChildScrollView(
                                     child: Wrap(
-                                      spacing: 10,
-                                      runSpacing: 20,
+                                      spacing: 6,
+                                      runSpacing: 6,
                                       alignment: WrapAlignment.start,
                                       crossAxisAlignment:
                                           WrapCrossAlignment.center,
                                       children: List.generate(
                                         unselectedTags.length,
-                                        (index) => AddIdeaTagItem(
+                                        (index) => SelectableKeywordItem(
                                           ideaTag: unselectedTags[index],
                                         ),
                                       ),
@@ -588,7 +582,7 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 30),
+                          SizedBox(height: 10),
                           Offstage(
                             offstage: selectedTags.isEmpty,
                             child: Row(
@@ -607,19 +601,19 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 30),
+                    SizedBox(height: 10),
                     Row(
                       children: [
                         Expanded(
                           child: Wrap(
-                            spacing: 10,
-                            runSpacing: 20,
+                            spacing: 6,
+                            runSpacing: 6,
                             alignment: WrapAlignment.start,
                             crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
                               ...List.generate(
                                 selectedTags.length,
-                                (index) => NewIdeaTagItem(
+                                (index) => SelectedKeywordItem(
                                   ideaTag: selectedTags[index],
                                 ),
                               ),
@@ -631,83 +625,92 @@ class _IdeaEditPageState extends ConsumerState<IdeaEditPage> {
                                 },
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
+                                    SizedBox(width: 6),
                                     Icon(Icons.add),
-                                    SizedBox(width: 5),
-                                    Flexible(
-                                      child: SingleChildScrollView(
-                                        scrollDirection: Axis.horizontal,
-                                        child: LayoutBuilder(
-                                          builder: (context, constraints) {
-                                            double _calculateWidth(
-                                                String text) {
-                                              final textPainter = TextPainter(
-                                                text: TextSpan(
-                                                  text: text.isEmpty
-                                                      ? unselectedTags
+                                    SizedBox(width: 8),
+                                    Transform.translate(
+                                      offset: Offset(0, -1),
+                                      child: Flexible(
+                                        child: SingleChildScrollView(
+                                          scrollDirection: Axis.horizontal,
+                                          child: LayoutBuilder(
+                                            builder: (context, constraints) {
+                                              double _calculateWidth(
+                                                  String text) {
+                                                final textPainter = TextPainter(
+                                                  text: TextSpan(
+                                                    text: text.isEmpty
+                                                        ? unselectedTags
+                                                                    .isEmpty &&
+                                                                selectedTags
+                                                                    .isEmpty
+                                                            ? '직접 입력직접 입력직접 입력직접 입력직접 입력직접 입력직접 '
+                                                            : '직접 입력'
+                                                        : text,
+                                                    style:
+                                                        TextStyle(fontSize: 17),
+                                                  ),
+                                                  textDirection:
+                                                      TextDirection.ltr,
+                                                )..layout();
+
+                                                return textPainter.width +
+                                                    30; // +20은 padding을 위한 여유 공간
+                                              }
+
+                                              double width = _calculateWidth(
+                                                _addTagController.text,
+                                              );
+                                              return Container(
+                                                constraints: BoxConstraints(
+                                                  maxWidth:
+                                                      constraints.maxWidth,
+                                                ),
+                                                width: width,
+                                                alignment: Alignment.center,
+                                                child: TextField(
+                                                  controller: _addTagController,
+                                                  focusNode: _addTagFocusNode,
+                                                  scrollPhysics:
+                                                      BouncingScrollPhysics(),
+                                                  maxLength: 20,
+                                                  style:
+                                                      TextStyle(fontSize: 16),
+                                                  textAlign: TextAlign.start,
+                                                  decoration: InputDecoration(
+                                                      border: InputBorder.none,
+                                                      counterText: '',
+                                                      hintText: unselectedTags
                                                                   .isEmpty &&
                                                               selectedTags
                                                                   .isEmpty
-                                                          ? '직접 입력직접 입력직접 입력직접 입력직접 입력직접 입력직접 '
-                                                          : '직접 입력'
-                                                      : text,
-                                                  style:
-                                                      TextStyle(fontSize: 17),
+                                                          ? '키워드를 입력하세요 (운동루틴, IT리뷰 등)'
+                                                          : '직접 입력'),
+                                                  onEditingComplete: () {
+                                                    createTagAndUpdateTagList();
+                                                    setState(() {
+                                                      _addTagController;
+                                                    });
+                                                  },
+                                                  onChanged: (value) {
+                                                    setState(() {
+                                                      _addTagController;
+                                                      if (_addTagController.text
+                                                          .contains(' ')) {
+                                                        createTagAndUpdateTagList();
+                                                        setState(() {
+                                                          _addTagController;
+                                                        });
+                                                      }
+                                                    });
+                                                  },
                                                 ),
-                                                textDirection:
-                                                    TextDirection.ltr,
-                                              )..layout();
-
-                                              return textPainter.width +
-                                                  30; // +20은 padding을 위한 여유 공간
-                                            }
-
-                                            double width = _calculateWidth(
-                                              _addTagController.text,
-                                            );
-                                            return Container(
-                                              constraints: BoxConstraints(
-                                                maxWidth: constraints.maxWidth,
-                                              ),
-                                              width: width,
-                                              alignment: Alignment.center,
-                                              child: TextField(
-                                                controller: _addTagController,
-                                                focusNode: _addTagFocusNode,
-                                                scrollPhysics:
-                                                    BouncingScrollPhysics(),
-                                                maxLength: 20,
-                                                style: TextStyle(fontSize: 16),
-                                                textAlign: TextAlign.start,
-                                                decoration: InputDecoration(
-                                                    border: InputBorder.none,
-                                                    counterText: '',
-                                                    hintText: unselectedTags
-                                                                .isEmpty &&
-                                                            selectedTags.isEmpty
-                                                        ? '키워드를 입력하세요 (운동루틴, IT리뷰 등)'
-                                                        : '직접 입력'),
-                                                onEditingComplete: () {
-                                                  createTagAndUpdateTagList();
-                                                  setState(() {
-                                                    _addTagController;
-                                                  });
-                                                },
-                                                onChanged: (value) {
-                                                  setState(() {
-                                                    _addTagController;
-                                                    if (_addTagController.text
-                                                        .contains(' ')) {
-                                                      createTagAndUpdateTagList();
-                                                      setState(() {
-                                                        _addTagController;
-                                                      });
-                                                    }
-                                                  });
-                                                },
-                                              ),
-                                            );
-                                          },
+                                              );
+                                            },
+                                          ),
                                         ),
                                       ),
                                     ),

@@ -11,7 +11,7 @@ class IdeaList extends ConsumerStatefulWidget {
     super.key,
     required this.isGridView,
   });
-  final bool? isGridView; // gridView <-> listView 스위칭
+  final bool isGridView; // gridView <-> listView 스위칭
 
   @override
   ConsumerState<IdeaList> createState() => _IdeaListState();
@@ -53,15 +53,16 @@ class _IdeaListState extends ConsumerState<IdeaList> {
     var ideasState = ref.watch(ideaViewModelProvider).ideas;
     List<Idea> sortedIdea = List<Idea>.from(ideasState)
       ..sort((a, b) => b.order.compareTo(a.order));
-
+ 
     return MasonryGridView.count(
-      crossAxisCount: widget.isGridView! ? 2 : 1, // GridView <-> ListView 스위칭
+      crossAxisCount: widget.isGridView ? 2 : 1, // GridView <-> ListView 스위칭
+      controller: _scrollController,
       mainAxisSpacing: 6.0,
       crossAxisSpacing: 6.0,
       itemCount: sortedIdea.length,
       itemBuilder: (BuildContext context, int index) {
         return GestureDetector(
-          child: IdeaCard(idea: sortedIdea[index]),
+          child: IdeaCard(idea: sortedIdea[index], isGridView: widget.isGridView),
           onLongPress: () {
             showChangeOrderBottomSheet(context, sortedIdea, index); // 길게 누르면 -> 순서 변경
           },

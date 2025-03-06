@@ -1,5 +1,5 @@
 import 'package:creator_planner/core/theme/colors.dart';
-import 'package:creator_planner/ui/pages/home/widgets/idea_card/sections/research_views_ratio_indicator.dart';
+import 'package:creator_planner/ui/pages/idea_edit/widgets/research_views_ratio_indicator.dart';
 import 'package:creator_planner/ui/widgets/section_with_title.dart';
 import 'package:creator_planner/core/utils/format_util.dart';
 import 'package:flutter/material.dart';
